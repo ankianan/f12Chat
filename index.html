@@ -27,10 +27,11 @@ function register(myId) {
 
     window.connect = function connect(other) {
         var conn = peer.connect(other);
-        conn.on('open', function() {
+        conn.on('open', function() {    
             window.send = function send(message) {
                 console.log("%c " + message + " ", "background:#33F157; border-radius:5px;");
                 conn.send(message);
+                return "....";
             }
         });
     };
