@@ -25,17 +25,15 @@ import * as constants from "../root/peerActionTypes.js";
     }
 }*/
 
-let reducer = (state, action) => {
+let reducer = (state = {}, action) => {
     switch (action.type) {
         case constants.PEER_CONNECTED:
             if (!state[action.id]) {
                 return {...state,
                     [action.id]: {...state[action.id],
-                        {
-                            "messageField": "",
-                            "detail": [action.id],
-                            "logs": []
-                        }
+                        "messageField": "",
+                        "detail": [action.id],
+                        "logs": []
                     }
                 };
             }
@@ -48,13 +46,11 @@ let reducer = (state, action) => {
         case constants.PEER_SEND_MESSAGE:
             return {...state,
                 [action.id]: {...state[action.id],
-                    {
-                        "logs": state[action.id].logs.concat({
-                            message: action.message,
-                            method: action.method,
-                            time: action.time
-                        }),
-                    }
+                    "logs": state[action.id].logs.concat({
+                        message: action.message,
+                        method: action.method,
+                        time: action.time
+                    })
                 }
             };
 
@@ -62,3 +58,4 @@ let reducer = (state, action) => {
             return state;
     }
 }
+export default reducer;

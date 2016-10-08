@@ -1,4 +1,4 @@
-import staticRoutes from "./routeStatic.js";
+import * as staticRoutes from "./routeStatic.js";
 
 let actions = {
     "register": () => {

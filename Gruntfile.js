@@ -63,11 +63,11 @@ module.exports = function(grunt) {
                 files: [{
                     'dest': 'src/j/app.js',
                     'src': 'src/app/index.js'
-                },
+                }/*,
                 {
                     'dest': 'src/resources/schema/bundle.js',
                     'src': 'src/resources/schema/index.js'
-                }]
+                }*/]
             }
         },
         browserify: {
@@ -93,5 +93,5 @@ module.exports = function(grunt) {
     require('../grunt/global/grunt-default.js')(grunt);
 
     swPrecacheConf(grunt);
-    grunt.registerTask('default', ["rollup"/*, "browserify", "gen", "swPrecache"*/])
+    grunt.registerTask('default', ["rollup", "swPrecache"])
 };

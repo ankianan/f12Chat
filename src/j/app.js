@@ -8,7 +8,7 @@
   var storage = {
       //driver: localforage.WEBSQL, // Force WebSQL; same as using setDriver()
       name: 'naukriDB',
-      version: 6,
+      version: 9,
       //size: 4980736, // Size of database, in bytes. WebSQL-only for now.
       storeName: 'naukriStore', // Should be alphanumeric, with underscores.
       description: 'Naukri jobseeker SPA'
@@ -70,7 +70,7 @@
   var CHANGE_ROUTE = "CHANGE_ROUTE";
 
   var reducer$1 = function () {
-      var state = arguments.length <= 0 || arguments[0] === undefined ? "" : arguments[0];
+      var state = arguments.length <= 0 || arguments[0] === undefined ? "/" : arguments[0];
       var action = arguments[1];
 
       var currentRoute = undefined;
@@ -152,127 +152,158 @@
     return call && (typeof call === "object" || typeof call === "function") ? call : self;
   };
 
+  /*{
+      "9911344354": {
+          "messageField": "",
+          "detail": "9911344354",
+          "logs": [{
+              "message": "hi",
+              "type": "recieve"
+          }, {
+              "message": "hello",
+              "type": "send"
+          }]
+      },
+      "9810959233": {
+          "messageField": "",
+          "detail": "9810959233",
+          "logs": [{
+              "message": "hi",
+              "type": "recieve"
+          }, {
+              "message": "hello",
+              "type": "send"
+          }]
+      }
+  }*/
+
   var reducer$2 = function () {
-      var state = arguments.length <= 0 || arguments[0] === undefined ? "" : arguments[0];
+      var _babelHelpers$extends2, _babelHelpers$extends3;
+
+      var state = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
       var action = arguments[1];
 
-      var currentRoute = undefined;
       switch (action.type) {
-          case PEER_REGISTER:
-              return _extends({}, state, { registered: true });
-          case PEER_CHANGE_NAME:
-              return _extends({}, state, { name: action.name });
-          case PEER_CHANGE_CONN_NAME:
-              return _extends({}, state, { connName: action.name });
+          case PEER_CONNECTED:
+              if (!state[action.id]) {
+                  var _babelHelpers$extends;
+
+                  return _extends({}, state, (_babelHelpers$extends = {}, _babelHelpers$extends[action.id] = _extends({}, state[action.id], {
+                      "messageField": "",
+                      "detail": [action.id],
+                      "logs": []
+                  }), _babelHelpers$extends));
+              }
+              return state;
           case PEER_CHANGE_MESSAGE:
-              return _extends({}, state, { connMessage: action.message });
+              return _extends({}, state, (_babelHelpers$extends2 = {}, _babelHelpers$extends2[action.id] = _extends({}, state[action.id], { "messageField": action.message }), _babelHelpers$extends2));
+          case PEER_RECIEVE_MESSAGE:
           case PEER_SEND_MESSAGE:
-              return _extends({}, state, { connMessage: "" });
+              return _extends({}, state, (_babelHelpers$extends3 = {}, _babelHelpers$extends3[action.id] = _extends({}, state[action.id], {
+                  "logs": state[action.id].logs.concat({
+                      message: action.message,
+                      method: action.method,
+                      time: action.time
+                  })
+              }), _babelHelpers$extends3));
+
           default:
               return state;
       }
   };
 
   /*{
-      logs: {
-          id: action.id,
-          unsentMessage: "",
-          log: [{
-              message: state.message,
-              type: "send"
-          }]
+      "8527619715": {
+          "id": "8527619715",
+          "name": "Ankit Anand",
+          "connId": null
+      },
+      "9911344354": {
+          "id": "9911344354",
+          "name": "Papa"
+      },
+      "9810959233": {
+          "id": "9810959233",
+          "name": "Mumi"
       }
-  }*/
+  }
+  */
+  var reducer$3 = function () {
+      var state = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+      var action = arguments[1];
 
-  /*let reducer = (state = "", action) => {
-      let currentRoute;
       switch (action.type) {
-          case constants.PEER_CONNECTED:
-              let search = state.filter(({ id }) => (id == action.id));
-              if (!search.length) {
-                  return state.concat({
+          case PEER_REGISTER:
+          case PEER_CONNECTED:
+              if (!state[action.id]) {
+                  var _babelHelpers$extends;
+
+                  return _extends({}, state, (_babelHelpers$extends = {}, _babelHelpers$extends[action.id] = {
                       id: action.id,
-                      unsentMessage: "",
-                      log: []
-                  });
+                      name: action.name
+                  }, _babelHelpers$extends));
+              } else {
+                  return state;
               }
-              return state;
-          case constants.PEER_SEND_MESSAGE:
-              return state.map((item) => {
-                  if (item.id == action.id) {
-                      return {...item,
-                          log: item.log.concat({
-                              message: action.message,
-                              type: "send"
-                          })
-                      }
-                  }
-                  return item;
-              });
-
-          case constants.PEER_RECIEVE_MESSAGE:
-              return state.map((item) => {
-                  if (item.id == action.id) {
-                      return {...item,
-                          log: item.log.concat({
-                              message: action.message,
-                              type: "recieve"
-                          })
-                      }
-                  }
-                  return item;
-              });
-
           default:
               return state;
       }
+  };
+
+  /*{  
+   "1":{  
+      "id":1,
+      "detail":"8527619715",
+      "contacts":[  
+         "9911344354",
+         "9810959233"
+      ]
+   }
   }*/
 
-  var reducer$3 = function () {
-      var state = arguments.length <= 0 || arguments[0] === undefined ? "" : arguments[0];
+  var reducer$4 = function () {
+      var state = arguments.length <= 0 || arguments[0] === undefined ? {
+          "1": {
+              "id": 1,
+              "idField": "",
+              "detail": "",
+              "contacts": [],
+              "contactSearchField": "",
+              "connContactId": ""
+          }
+      } : arguments[0];
       var action = arguments[1];
 
-      var currentRoute = undefined;
       switch (action.type) {
+          case PEER_REGISTER:
+              return _extends({}, state, {
+                  "1": _extends({}, state["1"], {
+                      "detail": action.id
+                  })
+              });
+          case PEER_CHANGE_NAME:
+              return _extends({}, state, {
+                  "1": _extends({}, state["1"], {
+                      "idField": action.name
+                  })
+              });
+          case PEER_CHANGE_CONN_NAME:
+              return _extends({}, state, {
+                  "1": _extends({}, state["1"], {
+                      "contactSearchField": action.name
+                  })
+              });
           case PEER_CONNECTED:
-              var search = state.filter(function (_ref) {
-                  var id = _ref.id;
-                  return id == action.id;
+              var contacts = state["1"].contacts.filter(function (contactId, index) {
+                  return contactId != action.id;
               });
-              if (!search.length) {
-                  return state.concat({
-                      id: action.id,
-                      unsentMessage: "",
-                      log: []
-                  });
-              }
-              return state;
-          case PEER_SEND_MESSAGE:
-              return state.map(function (item) {
-                  if (item.id == action.id) {
-                      return _extends({}, item, {
-                          log: item.log.concat({
-                              message: action.message,
-                              type: "send"
-                          })
-                      });
-                  }
-                  return item;
+              contacts.unshift(action.id);
+              return _extends({}, state, {
+                  "1": _extends({}, state["1"], {
+                      "connContactId": action.id,
+                      contacts: contacts
+                  })
               });
-
-          case PEER_RECIEVE_MESSAGE:
-              return state.map(function (item) {
-                  if (item.id == action.id) {
-                      return _extends({}, item, {
-                          log: item.log.concat({
-                              message: action.message,
-                              type: "recieve"
-                          })
-                      });
-                  }
-                  return item;
-              });
-
           default:
               return state;
       }
@@ -281,28 +312,39 @@
   var Redux$2 = window.interfaces.Redux;
 
   var reducer = Redux$2.combineReducers({
-      route: reducer$1,
-      peer: reducer$2,
-      logs: reducer$3
+      "route": reducer$1,
+      "account": reducer$4,
+      "user": reducer$3,
+      "contacts": reducer$2
   });
 
+  var ROUTE_REGISTER = "/chat/register";
+  var ROUTE_CONTACTS = "/chat/contacts";
+  var ROUTE_CONNECT = "/chat/connect";
+
   var actions = {
-      "searchForm": function () {
+      "register": function () {
           return {
               type: "CHANGE_ROUTE",
-              route: "/searchForm"
+              route: ROUTE_REGISTER
           };
       },
-      "searchResult": function () {
+      "contacts": function (id) {
           return {
               type: "CHANGE_ROUTE",
-              route: "/searchResult"
+              route: ROUTE_CONTACTS + "/" + id
+          };
+      },
+      "connect": function (id, connId) {
+          return {
+              type: "CHANGE_ROUTE",
+              route: ROUTE_CONNECT + "/" + id + "/" + connId
           };
       },
       "notFound": function () {
           return {
               type: "CHANGE_ROUTE",
-              route: "/notFound"
+              route: "/chat/notFound"
           };
       }
   };
@@ -319,14 +361,18 @@
       page$1.base(config.base);
 
       page$1('/', function () {
-          page$1.redirect('/searchForm');
+          page$1.redirect(ROUTE_REGISTER);
       });
 
-      page$1('/searchForm', function () {
-          boundedActions.searchForm();
+      page$1(ROUTE_REGISTER, function () {
+          boundedActions.register();
       });
-      page$1('/searchResult', function () {
-          boundedActions.searchResult();
+
+      page$1(ROUTE_CONTACTS + '/:id', function (ctx) {
+          boundedActions.contacts(ctx.params.id);
+      });
+      page$1(ROUTE_CONNECT + '/:id/:connId', function (ctx) {
+          boundedActions.connect(ctx.params.id, ctx.params.connId);
       });
       page$1('*', function () {
           boundedActions.notFound();
@@ -334,9 +380,10 @@
   })
 
   var actions$1 = {
-      "onRegister": function () {
+      "onRegister": function (id) {
           return {
-              type: PEER_REGISTER
+              type: PEER_REGISTER,
+              id: id
           };
       },
       "onChangeName": function (name) {
@@ -357,29 +404,225 @@
               id: id
           };
       },
-      "onChangeMessage": function (message) {
+      "onChangeMessage": function (id, message) {
           return {
               type: PEER_CHANGE_MESSAGE,
+              id: id,
               message: message
           };
       },
       "onSendMessage": function (id, message) {
           return {
               type: PEER_SEND_MESSAGE,
+              method: "send",
               id: id,
               message: message
+
           };
       },
       "onRecieveMessage": function (id, message) {
           return {
               type: PEER_RECIEVE_MESSAGE,
+              method: "receive",
               id: id,
               message: message
           };
       }
   };
 
-  var Virtual$3 = window.interfaces.Virtual;
+  var instance = null;
+
+  var PeerConnection = function () {
+      function PeerConnection() {
+          classCallCheck(this, PeerConnection);
+
+          if (!instance) {
+              instance = this;
+              this.peer = null;
+              this.connName = null;
+              this.conn = null;
+              this.connList = [];
+          }
+          return instance;
+      }
+
+      PeerConnection.prototype.register = function register(id, onRecieveMessage) {
+          var _this = this;
+
+          this.peer = new window.Peer(id, {
+              key: '45x1mf8qyx7833di'
+          });
+          this.peer.on('connection', function (conn) {
+              conn.on('data', function (data) {
+                  onRecieveMessage(_this.connName, data);
+              });
+          });
+      };
+
+      PeerConnection.prototype.connect = function connect(connId) {
+          var _this2 = this;
+
+          this.connName = connId;
+          var filterdConnList = this.connList.filter(function (_ref) {
+              var id = _ref.id;
+
+              if (id == _this2.connName) {
+                  return true;
+              }
+              return false;
+          });
+          if (filterdConnList.length) {
+              this.conn = filterdConnList.pop().conn;
+          } else {
+              this.conn = this.peer.connect(this.connName);
+              this.connList.push({ id: connId, conn: this.conn });
+          }
+      };
+
+      PeerConnection.prototype.send = function send(message) {
+          this.conn.send(message);
+          return "....";
+      };
+
+      return PeerConnection;
+  }();
+
+  var _window$interfaces$3 = window.interfaces;
+  var Virtual$3 = _window$interfaces$3.Virtual;
+  var page$2 = _window$interfaces$3.page;
+
+  var Register = function (_Virtual$Component) {
+      inherits(Register, _Virtual$Component);
+
+      function Register() {
+          classCallCheck(this, Register);
+
+          var _this = possibleConstructorReturn(this, _Virtual$Component.apply(this, arguments));
+
+          _this.peer = new PeerConnection();
+          _this.register = _this.register.bind(_this);
+          return _this;
+      }
+
+      Register.prototype.shouldComponentUpdate = function shouldComponentUpdate(newProps) {
+          return newProps.idField != this.props.idField;
+      };
+
+      Register.prototype.register = function register() {
+          var _props = this.props;
+          var idField = _props.idField;
+          var onRegister = _props.onRegister;
+          var onRecieveMessage = _props.onRecieveMessage;
+
+          this.peer.register(idField, onRecieveMessage);
+          onRegister(idField);
+          page$2(ROUTE_CONTACTS + "/" + idField);
+      };
+
+      Register.prototype.render = function render() {
+          var _props2 = this.props;
+          var idField = _props2.idField;
+          var onChangeName = _props2.onChangeName;
+
+
+          return Virtual$3.createElement(
+              "div",
+              null,
+              Virtual$3.createElement("input", { type: "tel", placeholder: "Mobile number", onChange: function (e) {
+                      onChangeName(e.target.value);
+                  }, value: idField }),
+              Virtual$3.createElement(
+                  "button",
+                  { onClick: this.register },
+                  "Register"
+              )
+          );
+      };
+
+      return Register;
+  }(Virtual$3.Component);
+
+  var _window$interfaces$4 = window.interfaces;
+  var Virtual$4 = _window$interfaces$4.Virtual;
+  var page$3 = _window$interfaces$4.page;
+
+
+  var Contacts = function (_Virtual$Component) {
+      inherits(Contacts, _Virtual$Component);
+
+      function Contacts() {
+          classCallCheck(this, Contacts);
+
+          var _this = possibleConstructorReturn(this, _Virtual$Component.apply(this, arguments));
+
+          _this.peer = new PeerConnection();
+          return _this;
+      }
+
+      Contacts.prototype.connect = function connect(id, contactId) {
+          this.peer.connect(contactId);
+          this.props.onConnection(contactId);
+          page$3(ROUTE_CONNECT + "/" + id + "/" + contactId);
+      };
+
+      Contacts.prototype.shouldComponentUpdate = function shouldComponentUpdate(newProps) {
+          return newProps.searchField != this.props.searchField || newProps.contactIds != this.props.contactIds;
+      };
+
+      Contacts.prototype.render = function render() {
+          var _this2 = this;
+
+          var _props = this.props;
+          var contactIds = _props.contactIds;
+          var searchField = _props.searchField;
+          var id = _props.id;
+          var contacts = _props.contacts;
+          var onChangeConnName = _props.onChangeConnName;
+
+          //Contact List
+
+          var filteredContactList = contactIds.filter(function (contactId) {
+              return contactId.indexOf(searchField) != -1;
+          }).map(function (contactId) {
+              var contact = contacts[contactId];
+              return Virtual$4.createElement(
+                  "li",
+                  { key: contactId },
+                  Virtual$4.createElement(
+                      "a",
+                      { href: "javascript:void(0)", onClick: function () {
+                              _this2.connect(id, contactId);
+                          } },
+                      "contact.name"
+                  )
+              );
+          });
+
+          return Virtual$4.createElement(
+              "div",
+              null,
+              Virtual$4.createElement("input", { placeholder: "Search", onChange: function (e) {
+                      onChangeConnName(e.target.value);
+                  }, value: searchField }),
+              Virtual$4.createElement(
+                  "button",
+                  { onClick: function () {
+                          return _this2.connect(id, searchField);
+                      } },
+                  "Add"
+              ),
+              Virtual$4.createElement(
+                  "ul",
+                  null,
+                  filteredContactList
+              )
+          );
+      };
+
+      return Contacts;
+  }(Virtual$4.Component);
+
+  var Virtual$6 = window.interfaces.Virtual;
 
   var LogList = function (_Virtual$Component) {
       inherits(LogList, _Virtual$Component);
@@ -399,187 +642,110 @@
           var connId = _props.connId;
 
 
-          if (logs.length) {
-              var filterdLog = logs.filter(function (_ref) {
-                  var id = _ref.id;
+          var logList = logs.map(function (_ref, index) {
+              var method = _ref.method;
+              var message = _ref.message;
 
-                  if (id == connId) {
-                      return true;
-                  }
-                  return false;
-              });
-              var currentLog = filterdLog.pop();
-
-              var logList = currentLog.log.map(function (_ref2, index) {
-                  var type = _ref2.type;
-                  var message = _ref2.message;
-
-                  var style = undefined;
-                  var className = "message " + type;
-                  return Virtual$3.createElement(
-                      "span",
-                      { key: index, className: className },
-                      message
-                  );
-              });
-              return Virtual$3.createElement(
-                  "div",
-                  { className: "messageList" },
-                  logList
+              var style = undefined;
+              var className = "message " + method;
+              return Virtual$6.createElement(
+                  "span",
+                  { key: index, className: className },
+                  message
               );
-          }
-
-          return null;
+          });
+          return Virtual$6.createElement(
+              "div",
+              { className: "messageList" },
+              logList
+          );
       };
 
       return LogList;
-  }(Virtual$3.Component);
+  }(Virtual$6.Component);
+
+  var Virtual$5 = window.interfaces.Virtual;
+
+  var Connect = function (_Virtual$Component) {
+      inherits(Connect, _Virtual$Component);
+
+      function Connect() {
+          classCallCheck(this, Connect);
+
+          var _this = possibleConstructorReturn(this, _Virtual$Component.apply(this, arguments));
+
+          _this.peer = new PeerConnection();
+          _this.send = _this.send.bind(_this);
+          return _this;
+      }
+
+      Connect.prototype.send = function send() {
+          var _props = this.props;
+          var contactId = _props.contactId;
+          var messageField = _props.messageField;
+          var onSendMessage = _props.onSendMessage;
+
+          this.peer.send(messageField);
+          onSendMessage(contactId, messageField);
+      };
+
+      Connect.prototype.render = function render() {
+          var _props2 = this.props;
+          var contactId = _props2.contactId;
+          var logs = _props2.logs;
+          var messageField = _props2.messageField;
+          var onChangeMessage = _props2.onChangeMessage;
+
+          return Virtual$5.createElement(
+              "div",
+              null,
+              Virtual$5.createElement(LogList, { logs: logs, connId: contactId }),
+              Virtual$5.createElement("textarea", { placeholder: "Message", onChange: function (e) {
+                      onChangeMessage(contactId, e.target.value);
+                  }, value: messageField }),
+              Virtual$5.createElement(
+                  "button",
+                  { onClick: this.send },
+                  "Send"
+              )
+          );
+      };
+
+      return Connect;
+  }(Virtual$5.Component);
 
   var Virtual$2 = window.interfaces.Virtual;
+
 
   var Peer = function (_Virtual$Component) {
       inherits(Peer, _Virtual$Component);
 
       function Peer() {
           classCallCheck(this, Peer);
-
-          var _this = possibleConstructorReturn(this, _Virtual$Component.apply(this, arguments));
-
-          _this.connList = [
-              /*{
-                          id : String,
-                          conn : Object
-                      }*/
-          ];
-
-          _this.register = _this.register.bind(_this);
-          _this.connect = _this.connect.bind(_this);
-          _this.send = _this.send.bind(_this);
-          return _this;
+          return possibleConstructorReturn(this, _Virtual$Component.apply(this, arguments));
       }
 
-      Peer.prototype.register = function register() {
-          var _this2 = this;
-
+      Peer.prototype.render = function render() {
+          var page = null;
           var _props = this.props;
+          var route = _props.route;
+          var account = _props.account;
+          var contacts = _props.contacts;
           var user = _props.user;
           var actions = _props.actions;
 
-          var myId = user.name;
+          account = account["1"];
 
-          this.peer = new window.Peer(myId, {
-              key: '45x1mf8qyx7833di'
-          });
-          this.peer.on('connection', function (conn) {
-              conn.on('data', function (data) {
-                  var user = _this2.props.user;
-
-                  actions.onRecieveMessage(user.connName, data);
-              });
-          });
-
-          actions.onRegister();
-      };
-
-      Peer.prototype.connect = function connect() {
-          var _props2 = this.props;
-          var user = _props2.user;
-          var actions = _props2.actions;
-
-          var filterdConnList = this.connList.filter(function (_ref) {
-              var id = _ref.id;
-
-              if (id == user.connName) {
-                  return true;
-              }
-              return false;
-          });
-          if (filterdConnList.length) {
-              this.conn = filterdConnList.pop().conn;
-          } else {
-              this.conn = this.peer.connect(user.connName);
-              this.connList.push({ id: user.connName, conn: this.conn });
+          if (route.indexOf(ROUTE_REGISTER) != -1) {
+              page = Virtual$2.createElement(Register, { idField: account.idField, onChangeName: actions.onChangeName, onRegister: actions.onRegister, onRecieveMessage: actions.onRecieveMessage });
           }
-          actions.onConnection(user.connName);
-      };
-
-      Peer.prototype.send = function send() {
-          var _props3 = this.props;
-          var user = _props3.user;
-          var actions = _props3.actions;
-
-          var message = user.connMessage;
-          this.conn.send(message);
-          actions.onSendMessage(user.connName, message);
-          return "....";
-      };
-
-      Peer.prototype.render = function render() {
-          var _props4 = this.props;
-          var user = _props4.user;
-          var actions = _props4.actions;
-          var logs = _props4.logs;
-
-
-          var page = undefined;
-
-          if (!user.registered) {
-              //Registeration
-              page = Virtual$2.createElement(
-                  'div',
-                  null,
-                  Virtual$2.createElement('input', { placeholder: 'You name', onChange: function (e) {
-                          actions.onChangeName(e.target.value);
-                      }, value: user.name }),
-                  Virtual$2.createElement(
-                      'button',
-                      { onClick: this.register },
-                      'Register'
-                  )
-              );
-          } else {
-
-              var messageArea = Virtual$2.createElement(
-                  'div',
-                  null,
-                  Virtual$2.createElement(LogList, { logs: logs, connId: user.connName }),
-                  Virtual$2.createElement('textarea', { placeholder: 'Message', onChange: function (e) {
-                          actions.onChangeMessage(e.target.value);
-                      }, value: user.connMessage }),
-                  Virtual$2.createElement(
-                      'button',
-                      { onClick: this.send },
-                      'Send'
-                  )
-              );
-
-              var connectTo = Virtual$2.createElement(
-                  'div',
-                  null,
-                  Virtual$2.createElement('input', { placeholder: 'Peer name', onChange: function (e) {
-                          actions.onChangeConnName(e.target.value);
-                      }, value: user.connName }),
-                  Virtual$2.createElement(
-                      'button',
-                      { onClick: this.connect },
-                      'Connect'
-                  )
-              );
-
-              page = Virtual$2.createElement(
-                  'div',
-                  null,
-                  Virtual$2.createElement(
-                      'label',
-                      null,
-                      'Welcome ',
-                      user.name
-                  ),
-                  connectTo,
-                  messageArea
-              );
+          if (route.indexOf(ROUTE_CONTACTS) != -1) {
+              page = Virtual$2.createElement(Contacts, { contactIds: account.contacts, searchField: account.contactSearchField, id: account.detail, contacts: contacts, onChangeConnName: actions.onChangeConnName, onConnection: actions.onConnection });
           }
-
+          if (route.indexOf(ROUTE_CONNECT) != -1) {
+              var contact = contacts[account.connContactId];
+              page = Virtual$2.createElement(Connect, { contactId: account.connContactId, logs: contact.logs, messageField: contact.messageField, onChangeMessage: actions.onChangeMessage, onSendMessage: actions.onSendMessage });
+          }
           return page;
       };
 
@@ -613,11 +779,10 @@
       }
 
       Root.prototype.render = function render() {
-
           return Virtual$1.createElement(
               "div",
               null,
-              Virtual$1.createElement(Peer, { route: this.state.route, logs: this.state.logs, user: this.state.peer, actions: this.peerActions })
+              Virtual$1.createElement(Peer, _extends({}, this.state, { actions: this.peerActions }))
           );
       };
 
@@ -625,86 +790,22 @@
           key: "initialState",
           get: function () {
 
-              /* let state = {
-                   "entities": {
-                       "account": {
-                           "1": {
-                               "id": 1,
-                               "detail": "8527619715",
-                               "contacts": [
-                                   "9911344354",
-                                   "9810959233"
-                               ],
-                               "connectId" : null,
-                               "connected" : false
-                           }
-                       },
-                       "user": {
-                           "8527619715": {
-                               "id": "8527619715",
-                               "name": "Ankit Anand"
-                           },
-                           "9911344354": {
-                               "id": "9911344354",
-                               "name": "Papa"
-                           },
-                           "9810959233": {
-                               "id": "9810959233",
-                               "name": "Mumi"
-                           }
-                       },
-                       "contact": {
-                           "9911344354": {
-                               "sendMessage": "",
-                               "detail": "9911344354",
-                               "pendingLogs": [
-                                 ],
-                               "logs": [
-                                   "hi",
-                                   "hello"
-                               ]
-                           },
-                           "9810959233": {
-                               "sendMessage": "",
-                               "detail": "9810959233",
-                               "pendingLogs": [
-                                 ],
-                               "logs": [
-                                   "hi",
-                                   "hello"
-                               ]
-                           }
-                       },
-                       "log": {
-                           "hi": {
-                               "message": "hi",
-                               "type": "recieve"
-                           },
-                           "hello": {
-                               "message": "hello",
-                               "type": "send"
-                           }
-                       }
-                   },
-                   "result": 1
-               };
-              */
-
               var state = {
-                  route: "/",
-                  peer: {
-                      name: "",
-                      registered: false,
-                      connName: "",
-                      connMessage: ""
+                  "route": "/",
+                  "account": {
+                      "1": {
+                          "id": 1,
+                          "idField": "",
+                          "detail": "",
+                          "contacts": [],
+                          "contactSearchField": "",
+                          "connContactId": ""
+                      }
                   },
-                  logs: []
+                  "user": {},
+                  "contacts": {}
               };
 
-              if (this.props.lastState) {
-                  this.props.lastState.peer.registered = false;
-                  this.props.lastState.peer.connected = false;
-              }
               return this.props.lastState || state;
           }
       }, {

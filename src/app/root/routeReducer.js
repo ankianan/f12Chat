@@ -1,6 +1,6 @@
 const CHANGE_ROUTE = "CHANGE_ROUTE";
 
-let reducer = (state = "", action) => {
+let reducer = (state = "/", action) => {
     let currentRoute
     switch (action.type) {
         case CHANGE_ROUTE:

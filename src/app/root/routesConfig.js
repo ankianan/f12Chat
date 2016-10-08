@@ -1,4 +1,5 @@
 let { page } = window.interfaces;
+import * as staticRoutes from "./routeStatic.js";
 import config from "../config.js";
 import actions from "./routeActions.js";
 export default (boundedActions) => {
@@ -11,14 +12,18 @@ export default (boundedActions) => {
     page.base(config.base);
 
     page('/', () => {
-        page.redirect('/chat/register')
+        page.redirect(staticRoutes.ROUTE_REGISTER)
     });
 
-    page('/chat/contacts/{id}', (id) => {
-        boundedActions.searchForm(...arguments);
+    page(staticRoutes.ROUTE_REGISTER, () => {
+        boundedActions.register();
     })
-    page('/chat/window/{id}/{connId}', (id,connId) => {
-        boundedActions.searchResult(...arguments);
+
+    page(staticRoutes.ROUTE_CONTACTS + '/:id', (ctx) => {
+        boundedActions.contacts(ctx.params.id);
+    })
+    page(staticRoutes.ROUTE_CONNECT + '/:id/:connId', (ctx) => {
+        boundedActions.connect(ctx.params.id,ctx.params.connId);
     })
     page('*', () => {
         boundedActions.notFound();

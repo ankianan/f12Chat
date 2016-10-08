@@ -9,9 +9,6 @@ import peerActions from "./peerActions.js";
 
 import Peer from "../Peer/PeerComponent.js";
 
-
-
-
 class Root extends Virtual.Component {
     constructor() {
         super(...arguments);
@@ -27,18 +24,19 @@ class Root extends Virtual.Component {
     get initialState() {
 
         let state = {
-            "route": "/"
+            "route": "/",
             "account": {
                 "1": {
                     "id": 1,
-                    "idField": null,
-                    "detail": null,
+                    "idField": "",
+                    "detail": "",
                     "contacts": [],
-                    "contactSearchField": null "connContactId": null
+                    "contactSearchField": "",
+                    "connContactId": ""
                 }
             },
             "user": {},
-            "contact": {}
+            "contacts": {}
         };
 
         return this.props.lastState || state;

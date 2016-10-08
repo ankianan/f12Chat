@@ -11,7 +11,16 @@ import * as constants from "../root/peerActionTypes.js";
  }
 }*/
 
-let reducer = (state, action) => {
+let reducer = (state = {
+    "1": {
+        "id": 1,
+        "idField": "",
+        "detail": "",
+        "contacts": [],
+        "contactSearchField": "",
+        "connContactId": ""
+    }
+}, action) => {
     switch (action.type) {
         case constants.PEER_REGISTER:
             return {...state,
@@ -32,15 +41,17 @@ let reducer = (state, action) => {
                 }
             };
         case constants.PEER_CONNECTED:
+            let contacts = state["1"].contacts
+                .filter((contactId, index) => (contactId != action.id));
+            contacts.unshift(action.id)
             return {...state,
                 "1": {...state["1"],
-                    "connContactId" : action.connId,
-                    "contacts": state["1"].contacts
-                        .filter((contactId, index) => (contactId != action.connId))
-                        .unshift(action.connId)
+                    "connContactId": action.id,
+                    contacts
                 }
             };
         default:
             return state;
     }
 }
+export default reducer;

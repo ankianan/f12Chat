@@ -16,11 +16,10 @@ import * as constants from "../root/peerActionTypes.js";
     }
 }
 */
-let reducer = (state, action) => {
+let reducer = (state = {}, action) => {
     switch (action.type) {
         case constants.PEER_REGISTER:
         case constants.PEER_CONNECTED:
-        default:
             if (!state[action.id]) {
                 return {...state,
                     [action.id]: {
@@ -28,7 +27,11 @@ let reducer = (state, action) => {
                         name: action.name
                     }
                 };
+            } else {
+                return state;
             }
+        default:
             return state;
     }
 }
+export default reducer;
