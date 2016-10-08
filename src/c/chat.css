@@ -1,0 +1,25 @@
+.messageList {
+    max-height: 300px;
+    overflow: auto;
+}
+
+.message {
+    clear: both;
+    width: 50%;
+    margin: 5px;
+    padding: 5px;
+    border-radius: 5px;
+    box-sizing: border-box;
+}
+
+.message.send {
+    background: #33F157;
+    borderRadius: 5px;
+    float: right;
+}
+
+.message.recieve {
+    background: #e2e2e2;
+    borderRadius: 5px;
+    float: left;
+}
