@@ -1,45 +1,46 @@
-<script>
-function loadJS(file) {
-    // DOM: Create the script element
-    var jsElm = document.createElement("script");
-    // set the type attribute
-    jsElm.type = "application/javascript";
-    // make the script element load file
-    jsElm.src = file;
-    // attach onload
-    jsElm.onload = function onload() {
-            console.log("Type register(your name), connect(friend name), send(message)");
-        }
-        // finally insert the element to the body element in order to load the script
-    document.head.appendChild(jsElm);
-}
+<!doctype html>
+<html>
 
-function register(myId) {
-    var peer = new Peer(myId, {
-        key: '45x1mf8qyx7833di'
-    });
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="shortcut icon" href="data:image/x-icon;," type="image/x-icon">
+    <style type="text/css">
+    .messageList {
+        max-height: 300px;
+        overflow: auto;
+    }
+    
+    .message {
+        clear: both;
+        width: 50%;
+        margin: 5px;
+        padding: 5px;
+        border-radius: 5px;
+        box-sizing: border-box;
+    }
+    
+    .message.send {
+        background: #33F157;
+        borderRadius: 5px;
+        float: right;
+    }
+    
+    .message.receive {
+        background: #e2e2e2;
+        borderRadius: 5px;
+        float: left;
+    }
+    </style>
+</head>
 
-    peer.on('connection', function(conn) {
-        conn.on('data', function(data) {
-            console.log("%c " + data + " ", "background:#e2e2e2; border-radius:5px;");
-        });
-    });
+<body>
+	<div id="root" style="height:100px;width:300px;"></div>
+    <script async src="//localhost:3000/j/service-worker-registeration.js"></script>
+    <script defer src="//localhost:3000/j/interfaces.js"></script>
+    <script defer src="//localhost:3000/j/peer.js"></script>
+    <script defer src="//localhost:3000/j/app.js"></script>
+</body>
 
-    window.connect = function connect(other) {
-        var conn = peer.connect(other);
-        conn.on('open', function() {    
-            window.send = function send(message) {
-                console.log("%c " + message + " ", "background:#33F157; border-radius:5px;");
-                conn.send(message);
-                return "....";
-            }
-        });
-    };
-}
-
-
-var connect = send = function(message) {
-    console.log("wait a second");
-}
-loadJS("http://cdn.peerjs.com/0.3/peer.js");
-</script>
+</html>
