@@ -65,11 +65,37 @@ module.exports = function(grunt) {
                         'src': 'src/app/index.js'
                     }
                     /*,
-                                    {
-                                        'dest': 'src/resources/schema/bundle.js',
-                                        'src': 'src/resources/schema/index.js'
-                                    }*/
+                    {
+                        'dest': 'src/resources/schema/bundle.js',
+                        'src': 'src/resources/schema/index.js'
+                    }*/
                 ]
+            },
+            migration: {
+                options: {
+                    format: "iife",
+                    plugins: function() {
+                        return [
+                            babel({
+                                exclude: '../node_modules/**'
+                            }),
+                            nodeResolve({ jsnext: true, main: true, skip: ['react'] }),
+                            commonjs(),
+                            replace({
+                                'process.env.NODE_ENV': JSON.stringify(target)
+                            })
+
+                        ];
+                    },
+                    globals: {
+                        react: 'interfaces["Virtual"]',
+                        reactDom: 'interfaces["VirtualDom"]'
+                    }
+                },
+                files: [{
+                    'dest': 'src/resources/migration/bundle.js',
+                    'src': 'src/resources/migration/index.js'
+                }]
             }
         },
         browserify: {
@@ -95,5 +121,6 @@ module.exports = function(grunt) {
     require('../grunt/global/grunt-default.js')(grunt);
 
     swPrecacheConf(grunt);
-    grunt.registerTask('default', ["rollup", "browserify", "swPrecache"])
+    //grunt.registerTask('default', ["rollup", "browserify", "swPrecache"])
+    grunt.registerTask('default', ["rollup:migration"])
 };
