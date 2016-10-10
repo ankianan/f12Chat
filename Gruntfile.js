@@ -25,7 +25,7 @@ module.exports = function(grunt) {
                             nodeResolve({ jsnext: true, main: true }),
                             commonjs(),
                             replace({
-                                'process.env.NODE_ENV': JSON.stringify("dev")
+                                'process.env.NODE_ENV': JSON.stringify("production")
                             }),
                             babel({
                                 exclude: '../node_modules/**'
@@ -34,10 +34,10 @@ module.exports = function(grunt) {
                     }
                 },
 
-                files: [/*{
+                files: [{
                     'dest': 'src/j/interfaces.js',
                     'src': 'src/jass/index.js'
-                }*/]
+                }]
             },
             modules: {
                 options: {
@@ -61,13 +61,15 @@ module.exports = function(grunt) {
                     }
                 },
                 files: [{
-                    'dest': 'src/j/app.js',
-                    'src': 'src/app/index.js'
-                }/*,
-                {
-                    'dest': 'src/resources/schema/bundle.js',
-                    'src': 'src/resources/schema/index.js'
-                }*/]
+                        'dest': 'src/j/app.js',
+                        'src': 'src/app/index.js'
+                    }
+                    /*,
+                                    {
+                                        'dest': 'src/resources/schema/bundle.js',
+                                        'src': 'src/resources/schema/index.js'
+                                    }*/
+                ]
             }
         },
         browserify: {
@@ -93,5 +95,5 @@ module.exports = function(grunt) {
     require('../grunt/global/grunt-default.js')(grunt);
 
     swPrecacheConf(grunt);
-    grunt.registerTask('default', ["rollup", "swPrecache"])
+    grunt.registerTask('default', ["rollup", "browserify", "swPrecache"])
 };

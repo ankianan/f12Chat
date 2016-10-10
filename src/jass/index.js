@@ -1,4 +1,3 @@
-import Immutable from "immutable";
 import * as Redux from "redux";
 import Virtual from "./react/Virtual.js"
 import VirtualDom from "./react/VirtualDom.js"

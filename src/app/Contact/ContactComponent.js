@@ -24,7 +24,7 @@ class Contacts extends Virtual.Component {
             .filter((contactId) => (contactId.indexOf(searchField) != -1))
             .map((contactId) => {
                 let contact = contacts[contactId];
-                return <li key={contactId}><a href="javascript:void(0)" onClick={() => {this.connect(id,contactId)}}>contact.name</a></li>
+                return <li key={contactId}><a href="javascript:void(0)" onClick={() => {this.connect(id,contactId)}}>{contact.name}</a></li>
             });
 
         return <div>

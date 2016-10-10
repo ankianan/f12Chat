@@ -488,7 +488,7 @@
   }();
 
   var _window$interfaces$3 = window.interfaces;
-  var Virtual$3 = _window$interfaces$3.Virtual;
+  var Virtual$2 = _window$interfaces$3.Virtual;
   var page$2 = _window$interfaces$3.page;
 
   var Register = function (_Virtual$Component) {
@@ -525,13 +525,13 @@
           var onChangeName = _props2.onChangeName;
 
 
-          return Virtual$3.createElement(
+          return Virtual$2.createElement(
               "div",
               null,
-              Virtual$3.createElement("input", { type: "tel", placeholder: "Mobile number", onChange: function (e) {
+              Virtual$2.createElement("input", { type: "tel", placeholder: "Mobile number", onChange: function (e) {
                       onChangeName(e.target.value);
                   }, value: idField }),
-              Virtual$3.createElement(
+              Virtual$2.createElement(
                   "button",
                   { onClick: this.register },
                   "Register"
@@ -540,10 +540,10 @@
       };
 
       return Register;
-  }(Virtual$3.Component);
+  }(Virtual$2.Component);
 
   var _window$interfaces$4 = window.interfaces;
-  var Virtual$4 = _window$interfaces$4.Virtual;
+  var Virtual$3 = _window$interfaces$4.Virtual;
   var page$3 = _window$interfaces$4.page;
 
 
@@ -585,33 +585,33 @@
               return contactId.indexOf(searchField) != -1;
           }).map(function (contactId) {
               var contact = contacts[contactId];
-              return Virtual$4.createElement(
+              return Virtual$3.createElement(
                   "li",
                   { key: contactId },
-                  Virtual$4.createElement(
+                  Virtual$3.createElement(
                       "a",
                       { href: "javascript:void(0)", onClick: function () {
                               _this2.connect(id, contactId);
                           } },
-                      "contact.name"
+                      contact.name
                   )
               );
           });
 
-          return Virtual$4.createElement(
+          return Virtual$3.createElement(
               "div",
               null,
-              Virtual$4.createElement("input", { placeholder: "Search", onChange: function (e) {
+              Virtual$3.createElement("input", { placeholder: "Search", onChange: function (e) {
                       onChangeConnName(e.target.value);
                   }, value: searchField }),
-              Virtual$4.createElement(
+              Virtual$3.createElement(
                   "button",
                   { onClick: function () {
                           return _this2.connect(id, searchField);
                       } },
                   "Add"
               ),
-              Virtual$4.createElement(
+              Virtual$3.createElement(
                   "ul",
                   null,
                   filteredContactList
@@ -620,9 +620,9 @@
       };
 
       return Contacts;
-  }(Virtual$4.Component);
+  }(Virtual$3.Component);
 
-  var Virtual$6 = window.interfaces.Virtual;
+  var Virtual$5 = window.interfaces.Virtual;
 
   var LogList = function (_Virtual$Component) {
       inherits(LogList, _Virtual$Component);
@@ -648,13 +648,13 @@
 
               var style = undefined;
               var className = "message " + method;
-              return Virtual$6.createElement(
+              return Virtual$5.createElement(
                   "span",
                   { key: index, className: className },
                   message
               );
           });
-          return Virtual$6.createElement(
+          return Virtual$5.createElement(
               "div",
               { className: "messageList" },
               logList
@@ -662,9 +662,9 @@
       };
 
       return LogList;
-  }(Virtual$6.Component);
+  }(Virtual$5.Component);
 
-  var Virtual$5 = window.interfaces.Virtual;
+  var Virtual$4 = window.interfaces.Virtual;
 
   var Connect = function (_Virtual$Component) {
       inherits(Connect, _Virtual$Component);
@@ -696,14 +696,14 @@
           var messageField = _props2.messageField;
           var onChangeMessage = _props2.onChangeMessage;
 
-          return Virtual$5.createElement(
+          return Virtual$4.createElement(
               "div",
               null,
-              Virtual$5.createElement(LogList, { logs: logs, connId: contactId }),
-              Virtual$5.createElement("textarea", { placeholder: "Message", onChange: function (e) {
+              Virtual$4.createElement(LogList, { logs: logs, connId: contactId }),
+              Virtual$4.createElement("textarea", { placeholder: "Message", onChange: function (e) {
                       onChangeMessage(contactId, e.target.value);
                   }, value: messageField }),
-              Virtual$5.createElement(
+              Virtual$4.createElement(
                   "button",
                   { onClick: this.send },
                   "Send"
@@ -712,45 +712,7 @@
       };
 
       return Connect;
-  }(Virtual$5.Component);
-
-  var Virtual$2 = window.interfaces.Virtual;
-
-
-  var Peer = function (_Virtual$Component) {
-      inherits(Peer, _Virtual$Component);
-
-      function Peer() {
-          classCallCheck(this, Peer);
-          return possibleConstructorReturn(this, _Virtual$Component.apply(this, arguments));
-      }
-
-      Peer.prototype.render = function render() {
-          var page = null;
-          var _props = this.props;
-          var route = _props.route;
-          var account = _props.account;
-          var contacts = _props.contacts;
-          var user = _props.user;
-          var actions = _props.actions;
-
-          account = account["1"];
-
-          if (route.indexOf(ROUTE_REGISTER) != -1) {
-              page = Virtual$2.createElement(Register, { idField: account.idField, onChangeName: actions.onChangeName, onRegister: actions.onRegister, onRecieveMessage: actions.onRecieveMessage });
-          }
-          if (route.indexOf(ROUTE_CONTACTS) != -1) {
-              page = Virtual$2.createElement(Contacts, { contactIds: account.contacts, searchField: account.contactSearchField, id: account.detail, contacts: contacts, onChangeConnName: actions.onChangeConnName, onConnection: actions.onConnection });
-          }
-          if (route.indexOf(ROUTE_CONNECT) != -1) {
-              var contact = contacts[account.connContactId];
-              page = Virtual$2.createElement(Connect, { contactId: account.connContactId, logs: contact.logs, messageField: contact.messageField, onChangeMessage: actions.onChangeMessage, onSendMessage: actions.onSendMessage });
-          }
-          return page;
-      };
-
-      return Peer;
-  }(Virtual$2.Component);
+  }(Virtual$4.Component);
 
   var _window$interfaces$2 = window.interfaces;
   var Virtual$1 = _window$interfaces$2.Virtual;
@@ -779,34 +741,35 @@
       }
 
       Root.prototype.render = function render() {
-          return Virtual$1.createElement(
-              "div",
-              null,
-              Virtual$1.createElement(Peer, _extends({}, this.state, { actions: this.peerActions }))
-          );
+          var page = null;
+          if (Object.keys(this.state).length) {
+              var _state = this.state;
+              var route = _state.route;
+              var account = _state.account;
+              var contacts = _state.contacts;
+              var user = _state.user;
+
+              var actions = this.peerActions;
+              account = account["1"];
+
+              if (route.indexOf(ROUTE_REGISTER) != -1) {
+                  page = Virtual$1.createElement(Register, { idField: account.idField, onChangeName: actions.onChangeName, onRegister: actions.onRegister, onRecieveMessage: actions.onRecieveMessage });
+              }
+              if (route.indexOf(ROUTE_CONTACTS) != -1) {
+                  page = Virtual$1.createElement(Contacts, { contactIds: account.contacts, searchField: account.contactSearchField, id: account.detail, contacts: contacts, onChangeConnName: actions.onChangeConnName, onConnection: actions.onConnection });
+              }
+              if (route.indexOf(ROUTE_CONNECT) != -1) {
+                  var contact = contacts[account.connContactId];
+                  page = Virtual$1.createElement(Connect, { contactId: account.connContactId, logs: contact.logs, messageField: contact.messageField, onChangeMessage: actions.onChangeMessage, onSendMessage: actions.onSendMessage });
+              }
+          }
+          return page;
       };
 
       createClass(Root, [{
           key: "initialState",
           get: function () {
-
-              var state = {
-                  "route": "/",
-                  "account": {
-                      "1": {
-                          "id": 1,
-                          "idField": "",
-                          "detail": "",
-                          "contacts": [],
-                          "contactSearchField": "",
-                          "connContactId": ""
-                      }
-                  },
-                  "user": {},
-                  "contacts": {}
-              };
-
-              return this.props.lastState || state;
+              return this.props.lastState || {};
           }
       }, {
           key: "reducer",
@@ -823,9 +786,7 @@
 
 
   hydrate().then(function (lastState) {
-      var newElement = document.createElement("div");
-      document.body.appendChild(newElement);
-      VirtualDom.render(Virtual.createElement(Root, { lastState: lastState }), newElement);
+      VirtualDom.render(Virtual.createElement(Root, { lastState: lastState }), document.getElementById("root"));
   });
 
 }());
