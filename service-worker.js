@@ -24,7 +24,7 @@
 /* eslint-disable indent, no-unused-vars, no-multiple-empty-lines, max-nested-callbacks, space-before-function-paren, quotes, comma-spacing */
 'use strict';
 
-var precacheConfig = [["./index.html","7825a93c3cba64487ed0661beda74a52"],["/c/chat.css","e9a57ba39e78b6a378d2f1585e52e572"],["/j/app.js","fb54b60456af913ad81116d7311e6938"],["/j/interfaces.js","ab7e6908740264a5f1d9bfc1f9c95192"],["/j/peer.js","d49a16abc9ccdc2a86f9ed5d6ddeb0fd"],["/j/service-worker-registeration.js","8150ee7184490f92535e2e115015fcc5"]];
+var precacheConfig = [["./index.html","7825a93c3cba64487ed0661beda74a52"],["/c/chat.css","e9a57ba39e78b6a378d2f1585e52e572"],["/j/app.js","c2b53ec11bf1f1871edee26ead92a95b"],["/j/interfaces.js","b40710100d622d04c4c6a6d0aad4059c"],["/j/peer.js","2b7cabe593afc6b1a67de861666d6f9a"],["/j/service-worker-registeration.js","aefb61c1c16a193536101759b9157f6f"]];
 var cacheName = 'sw-precache-v2-Naurki.com-' + (self.registration ? self.registration.scope : '');
 
 

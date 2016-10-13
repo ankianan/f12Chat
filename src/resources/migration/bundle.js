@@ -1,32 +1,6 @@
 (function () {
 	'use strict';
 
-	var _extends = Object.assign || function (target) {
-	  for (var i = 1; i < arguments.length; i++) {
-	    var source = arguments[i];
-
-	    for (var key in source) {
-	      if (Object.prototype.hasOwnProperty.call(source, key)) {
-	        target[key] = source[key];
-	      }
-	    }
-	  }
-
-	  return target;
-	};
-
-	var manifest = {
-	    1: function (state) {
-	        return _extends({}, state, { "even": 2, "nested": {} });
-	    },
-	    2: function (state) {
-	        return _extends({}, state, { "even": 4, "nested": { "a": 1 } });
-	    },
-	    3: function (state) {
-	        return _extends({}, state, { "even": 8, "nested": undefined });
-	    }
-	};
-
 	/**
 	 * Creates a unary function that invokes `func` with its argument transformed.
 	 *
@@ -450,6 +424,132 @@
 	  /* eslint-enable no-empty */
 	}
 
+	function getUndefinedStateErrorMessage(key, action) {
+	  var actionType = action && action.type;
+	  var actionName = actionType && '"' + actionType.toString() + '"' || 'an action';
+
+	  return 'Given action ' + actionName + ', reducer "' + key + '" returned undefined. ' + 'To ignore an action, you must explicitly return the previous state.';
+	}
+
+	function getUnexpectedStateShapeWarningMessage(inputState, reducers, action, unexpectedKeyCache) {
+	  var reducerKeys = Object.keys(reducers);
+	  var argumentName = action && action.type === ActionTypes.INIT ? 'preloadedState argument passed to createStore' : 'previous state received by the reducer';
+
+	  if (reducerKeys.length === 0) {
+	    return 'Store does not have a valid reducer. Make sure the argument passed ' + 'to combineReducers is an object whose values are reducers.';
+	  }
+
+	  if (!isPlainObject(inputState)) {
+	    return 'The ' + argumentName + ' has unexpected type of "' + {}.toString.call(inputState).match(/\s([a-z|A-Z]+)/)[1] + '". Expected argument to be an object with the following ' + ('keys: "' + reducerKeys.join('", "') + '"');
+	  }
+
+	  var unexpectedKeys = Object.keys(inputState).filter(function (key) {
+	    return !reducers.hasOwnProperty(key) && !unexpectedKeyCache[key];
+	  });
+
+	  unexpectedKeys.forEach(function (key) {
+	    unexpectedKeyCache[key] = true;
+	  });
+
+	  if (unexpectedKeys.length > 0) {
+	    return 'Unexpected ' + (unexpectedKeys.length > 1 ? 'keys' : 'key') + ' ' + ('"' + unexpectedKeys.join('", "') + '" found in ' + argumentName + '. ') + 'Expected to find one of the known reducer keys instead: ' + ('"' + reducerKeys.join('", "') + '". Unexpected keys will be ignored.');
+	  }
+	}
+
+	function assertReducerSanity(reducers) {
+	  Object.keys(reducers).forEach(function (key) {
+	    var reducer = reducers[key];
+	    var initialState = reducer(undefined, { type: ActionTypes.INIT });
+
+	    if (typeof initialState === 'undefined') {
+	      throw new Error('Reducer "' + key + '" returned undefined during initialization. ' + 'If the state passed to the reducer is undefined, you must ' + 'explicitly return the initial state. The initial state may ' + 'not be undefined.');
+	    }
+
+	    var type = '@@redux/PROBE_UNKNOWN_ACTION_' + Math.random().toString(36).substring(7).split('').join('.');
+	    if (typeof reducer(undefined, { type: type }) === 'undefined') {
+	      throw new Error('Reducer "' + key + '" returned undefined when probed with a random type. ' + ('Don\'t try to handle ' + ActionTypes.INIT + ' or other actions in "redux/*" ') + 'namespace. They are considered private. Instead, you must return the ' + 'current state for any unknown actions, unless it is undefined, ' + 'in which case you must return the initial state, regardless of the ' + 'action type. The initial state may not be undefined.');
+	    }
+	  });
+	}
+
+	/**
+	 * Turns an object whose values are different reducer functions, into a single
+	 * reducer function. It will call every child reducer, and gather their results
+	 * into a single state object, whose keys correspond to the keys of the passed
+	 * reducer functions.
+	 *
+	 * @param {Object} reducers An object whose values correspond to different
+	 * reducer functions that need to be combined into one. One handy way to obtain
+	 * it is to use ES6 `import * as reducers` syntax. The reducers may never return
+	 * undefined for any action. Instead, they should return their initial state
+	 * if the state passed to them was undefined, and the current state for any
+	 * unrecognized action.
+	 *
+	 * @returns {Function} A reducer function that invokes every reducer inside the
+	 * passed object, and builds a state object with the same shape.
+	 */
+	function combineReducers(reducers) {
+	  var reducerKeys = Object.keys(reducers);
+	  var finalReducers = {};
+	  for (var i = 0; i < reducerKeys.length; i++) {
+	    var key = reducerKeys[i];
+
+	    if (undefined !== 'production') {
+	      if (typeof reducers[key] === 'undefined') {
+	        warning('No reducer provided for key "' + key + '"');
+	      }
+	    }
+
+	    if (typeof reducers[key] === 'function') {
+	      finalReducers[key] = reducers[key];
+	    }
+	  }
+	  var finalReducerKeys = Object.keys(finalReducers);
+
+	  if (undefined !== 'production') {
+	    var unexpectedKeyCache = {};
+	  }
+
+	  var sanityError;
+	  try {
+	    assertReducerSanity(finalReducers);
+	  } catch (e) {
+	    sanityError = e;
+	  }
+
+	  return function combination() {
+	    var state = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+	    var action = arguments[1];
+
+	    if (sanityError) {
+	      throw sanityError;
+	    }
+
+	    if (undefined !== 'production') {
+	      var warningMessage = getUnexpectedStateShapeWarningMessage(state, finalReducers, action, unexpectedKeyCache);
+	      if (warningMessage) {
+	        warning(warningMessage);
+	      }
+	    }
+
+	    var hasChanged = false;
+	    var nextState = {};
+	    for (var i = 0; i < finalReducerKeys.length; i++) {
+	      var key = finalReducerKeys[i];
+	      var reducer = finalReducers[key];
+	      var previousStateForKey = state[key];
+	      var nextStateForKey = reducer(previousStateForKey, action);
+	      if (typeof nextStateForKey === 'undefined') {
+	        var errorMessage = getUndefinedStateErrorMessage(key, action);
+	        throw new Error(errorMessage);
+	      }
+	      nextState[key] = nextStateForKey;
+	      hasChanged = hasChanged || nextStateForKey !== previousStateForKey;
+	    }
+	    return hasChanged ? nextState : state;
+	  };
+	}
+
 	/**
 	 * Composes single-argument functions from right to left. The rightmost
 	 * function can take multiple arguments as it provides the signature for
@@ -485,7 +585,7 @@
 	  };
 	}
 
-	var _extends$1 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 	/**
 	 * Creates a store enhancer that applies middleware to the dispatch method
@@ -525,7 +625,7 @@
 	      });
 	      _dispatch = compose.apply(undefined, chain)(store.dispatch);
 
-	      return _extends$1({}, store, {
+	      return _extends({}, store, {
 	        dispatch: _dispatch
 	      });
 	    };
@@ -541,33 +641,6 @@
 	if (undefined !== 'production' && typeof isCrushed.name === 'string' && isCrushed.name !== 'isCrushed') {
 	  warning('You are currently using minified code outside of NODE_ENV === \'production\'. ' + 'This means that you are running a slower development build of Redux. ' + 'You can use loose-envify (https://github.com/zertosh/loose-envify) for browserify ' + 'or DefinePlugin for webpack (http://stackoverflow.com/questions/30030031) ' + 'to ensure you have the correct code for your production build.');
 	}
-
-	var getNextVersion = function (currentVersion) {
-	    return (currentVersion || 0) + 1;
-	};
-
-	var shouldMigrate = function (state, toVersion, nextVersion) {
-
-	    if (nextVersion in manifest) {
-	        if (toVersion) {
-	            return nextVersion <= toVersion;
-	        }
-	        return true;
-	    }
-	    return false;
-	};
-
-	var migration = (function (state, toVersion) {
-
-	    var nextVersion = getNextVersion(state.version);
-
-	    while (shouldMigrate(state, toVersion, nextVersion)) {
-
-	        state = _extends({}, manifest[nextVersion](state), { "version": nextVersion });
-	        nextVersion = getNextVersion(state.version);
-	    }
-	    return state;
-	})
 
 	/**
 	 * Logs all actions and states after they are dispatched.
@@ -590,49 +663,137 @@
 	    };
 	};
 
-	var reducer = function () {
-	    var state = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+	var _extends$1 = Object.assign || function (target) {
+	  for (var i = 1; i < arguments.length; i++) {
+	    var source = arguments[i];
+
+	    for (var key in source) {
+	      if (Object.prototype.hasOwnProperty.call(source, key)) {
+	        target[key] = source[key];
+	      }
+	    }
+	  }
+
+	  return target;
+	};
+
+	var manifest = {
+	    1: function (state) {
+	        return _extends$1({}, state, { "even": 2, "nested": {} });
+	    },
+	    2: function (state) {
+	        return _extends$1({}, state, { "even": 4, "nested": { "a": 1 } });
+	    },
+	    3: function (state) {
+	        return _extends$1({}, state, { "even": 8, "nested": undefined });
+	    }
+	};
+
+	var getNextVersion = function (currentVersion) {
+	    return (currentVersion || 0) + 1;
+	};
+
+	var shouldMigrate = function (state, toVersion, nextVersion) {
+
+	    if (nextVersion in manifest) {
+	        if (toVersion) {
+	            return nextVersion <= toVersion;
+	        }
+	        return true;
+	    }
+	    return false;
+	};
+
+	var migration = (function (state, toVersion) {
+
+	    var nextVersion = getNextVersion(state.version);
+
+	    while (shouldMigrate(state, toVersion, nextVersion)) {
+
+	        state = _extends$1({}, manifest[nextVersion](state), { "version": nextVersion });
+	        nextVersion = getNextVersion(state.version);
+	    }
+	    return state;
+	})
+
+	var _window = window;
+	var QUnit = _window.QUnit;
+
+
+	var testcase = (function (store) {
+	    QUnit.module("migration");
+
+	    QUnit.test("Should migrate to specific version", function (assert) {
+	        //To specific version
+	        store.dispatch({
+	            type: "MIGRATE",
+	            toVersion: 1
+	        });
+	        assert.ok(store.getState().version == 1);
+	        assert.ok(Object.keys(store.getState().nested).length == 0);
+	    });
+
+	    QUnit.test("Should migrate to highest version by default", function (assert) {
+	        //To highest version
+	        store.dispatch({
+	            type: "MIGRATE",
+	            toVersion: undefined
+	        });
+	        assert.ok(store.getState().version == 3);
+	        assert.ok(store.getState().nested == undefined);
+	    });
+
+	    QUnit.test("Should not revert back to lower version", function (assert) {
+	        //To revert back
+	        store.dispatch({
+	            type: "MIGRATE",
+	            toVersion: 2
+	        });
+	        assert.ok(store.getState().version == 3);
+	    });
+
+	    QUnit.test("Should gracefully handle out of bound version", function (assert) {
+	        //To non existent version
+	        store.dispatch({
+	            type: "MIGRATE",
+	            toVersion: 100
+	        });
+	        assert.ok(store.getState().version == 3);
+	    });
+	})
+
+	var evenReducer = function () {
+	    var state = arguments.length <= 0 || arguments[0] === undefined ? 8 : arguments[0];
 	    var action = arguments[1];
 
 	    switch (action.type) {
-	        case "RESET":
-	            return {};
-	        case "MIGRATE":
-	            return migration(state, action.toVersion);
+	        case "HYDRATE":
+	            var even = action.payload.even;
+	            if (even) {
+	                return _extends$1({}, state, { even: even });
+	            }
 	        default:
 	            return state;
 	    }
 	};
 
+	var reducer_combined = combineReducers({
+	    even: evenReducer
+	});
+
+	var reducer = function () {
+	    var state = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+	    var action = arguments[1];
+
+	    switch (action.type) {
+	        case "MIGRATE":
+	            return migration(state, action.toVersion);
+	    };
+	    reducer_combined(state, action);
+	};
+
 	var store = createStore(reducer, undefined, applyMiddleware(logger));
-	//To specific version
-	store.dispatch({
-	    type: "MIGRATE",
-	    toVersion: 1
-	});
-	console.assert(store.getState().version == 1);
-	console.assert(Object.keys(store.getState().nested).length == 0);
 
-	//To highest version
-	store.dispatch({
-	    type: "MIGRATE",
-	    toVersion: undefined
-	});
-	console.assert(store.getState().version == 3);
-	console.assert(store.getState().nested == undefined);
-
-	//To revert back
-	store.dispatch({
-	    type: "MIGRATE",
-	    toVersion: 2
-	});
-	console.assert(store.getState().version == 3);
-
-	//To non existent version
-	store.dispatch({
-	    type: "MIGRATE",
-	    toVersion: 100
-	});
-	console.assert(store.getState().version == 3);
+	testcase(store);
 
 }());

@@ -642,38 +642,6 @@
     console.group = console.group || console.log;
     console.groupEnd = console.groupEnd || console.log;
 
-    var logger = function (store) {
-        return function (next) {
-            return function (action) {
-                console.group(action.type);
-                console.info('dispatching', action);
-                var result = next(action);
-                console.log('next state', store.getState());
-                console.groupEnd(action.type);
-                return result;
-            };
-        };
-    };
-
-    function createThunkMiddleware(extraArgument) {
-      return function (_ref) {
-        var dispatch = _ref.dispatch;
-        var getState = _ref.getState;
-        return function (next) {
-          return function (action) {
-            if (typeof action === 'function') {
-              return action(dispatch, getState, extraArgument);
-            }
-
-            return next(action);
-          };
-        };
-      };
-    }
-
-    var thunk = createThunkMiddleware();
-    thunk.withExtraArgument = createThunkMiddleware;
-
     /* eslint-disable no-unused-vars */
     var hasOwnProperty$2 = Object.prototype.hasOwnProperty;
     var propIsEnumerable = Object.prototype.propertyIsEnumerable;
@@ -3887,21 +3855,7 @@ var     _assign$3 = __moduleExports$1;
 
         function Component(props) {
             classCallCheck(this, Component);
-
-            var _this4 = possibleConstructorReturn(this, _Spec.apply(this, arguments));
-
-            _this4.state = _this4.initialState;
-
-            //Creating flux store for the state       
-            if (_this4.state) {
-                _this4.store = createStore(_this4.reducer, _this4.state, applyMiddleware(logger, thunk));
-                _this4.unsubscribe = _this4.store.subscribe(function () {
-                    _this4.setState(_this4.store.getState());
-                });
-            } else {
-                _this4.store = null;
-            }
-            return _this4;
+            return possibleConstructorReturn(this, _Spec.apply(this, arguments));
         }
 
         return Component;

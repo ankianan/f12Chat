@@ -1,3 +1,4 @@
+import { REHYDRATE } from 'redux-persist/lib/constants.js';
 import * as constants from "../root/peerActionTypes.js";
 
 /*{
@@ -18,6 +19,11 @@ import * as constants from "../root/peerActionTypes.js";
 */
 let reducer = (state = {}, action) => {
     switch (action.type) {
+        case REHYDRATE:
+            var incoming = action.payload.user;
+            if (incoming) return {...state, ...incoming }
+            return state;
+
         case constants.PEER_REGISTER:
         case constants.PEER_CONNECTED:
             if (!state[action.id]) {

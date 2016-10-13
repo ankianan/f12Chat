@@ -50,6 +50,31 @@ module.exports = function(grunt) {
                             nodeResolve({ jsnext: true, main: true, skip: ['react'] }),
                             commonjs(),
                             replace({
+                                'process.env.NODE_ENV': JSON.stringify("production")
+                            })
+                        ];
+                    },
+                    globals: {
+                        react: 'interfaces["Virtual"]',
+                        reactDom: 'interfaces["VirtualDom"]'
+                    }
+                },
+                files: [{
+                    'dest': 'src/j/app.js',
+                    'src': 'src/app/index.js'
+                }]
+            },
+            schema: {
+                options: {
+                    format: "iife",
+                    plugins: function() {
+                        return [
+                            babel({
+                                exclude: '../node_modules/**'
+                            }),
+                            nodeResolve({ jsnext: true, main: true, skip: ['react'] }),
+                            commonjs(),
+                            replace({
                                 'process.env.NODE_ENV': JSON.stringify(target)
                             })
 
@@ -61,15 +86,9 @@ module.exports = function(grunt) {
                     }
                 },
                 files: [{
-                        'dest': 'src/j/app.js',
-                        'src': 'src/app/index.js'
-                    }
-                    /*,
-                    {
-                        'dest': 'src/resources/schema/bundle.js',
-                        'src': 'src/resources/schema/index.js'
-                    }*/
-                ]
+                    'dest': 'src/resources/schema/bundle.js',
+                    'src': 'src/resources/schema/index.js'
+                }]
             },
             migration: {
                 options: {
@@ -99,9 +118,15 @@ module.exports = function(grunt) {
             }
         },
         browserify: {
-            dist: {
+            interfaces: {
                 files: {
                     'src/j/interfaces.js': 'src/j/interfaces.js'
+
+                }
+            },
+            modules: {
+                files: {
+                    'src/j/app.js': 'src/j/app.js'
 
                 }
             }
@@ -121,6 +146,7 @@ module.exports = function(grunt) {
     require('../grunt/global/grunt-default.js')(grunt);
 
     swPrecacheConf(grunt);
-    //grunt.registerTask('default', ["rollup", "browserify", "swPrecache"])
-    grunt.registerTask('default', ["rollup:migration"])
+    grunt.registerTask('interfaces', ["rollup:interfaces", "browserify:interfaces"])
+    grunt.registerTask('default', ["rollup:modules", "browserify:modules", "swPrecache"])
+        //grunt.registerTask('default', ["rollup:migration"])
 };

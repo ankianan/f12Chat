@@ -1,7 +1,14 @@
-let { Virtual, Redux, page } = window.interfaces;
-let { bindActionCreators } = Redux;
+let { Virtual, Redux, page, localforage } = window.interfaces;
+let { bindActionCreators, compose } = Redux;
 
-import { replicate } from "../storage.js";
+import config from "../config.js";
+
+//import 'setimmediate';
+import reduxThunk from "redux-thunk";
+import logger from "../../jass/redux/middleware/logger.js";
+import { createTransform, persistStore, autoRehydrate } from 'redux-persist';
+
+//import { replicate } from "../storage.js";
 import combinedReducer from "./reducer.js";
 import routeActions from "./routeActions.js";
 import routesConfig from "./routesConfig.js";
@@ -15,26 +22,43 @@ import Connect from "../Peer/ConnectComponent.js";
 class Root extends Virtual.Component {
     constructor() {
         super(...arguments);
+        //Creating flux store for the state        
+
+        let enhancer = compose(autoRehydrate(), Redux.applyMiddleware(logger, reduxThunk));
+        this.store = Redux.createStore(combinedReducer, undefined, enhancer);
+
         routesConfig(bindActionCreators(routeActions, this.store.dispatch));
-
         this.peerActions = bindActionCreators(peerActions, this.store.dispatch);
+        localforage.config(config.storage);
 
-        this.store.subscribe(() => {
-            replicate(this.store.getState());
+        let myTransform = createTransform(
+            (inboundState, key) => {
+                console.log(inboundState);
+                return inboundState;
+            },
+            (outboundState, key) => outboundState);
+
+        persistStore(this.store, { storage: localforage, serialize: (data) => data, deserialize: (data) => data, transforms: [myTransform] }, () => {
+            console.log('rehydration complete');
+            this.setState(this.store.getState());
+            page.redirect(document.location.pathname);
         });
-        page.redirect(document.location.pathname);
-    }
-    get initialState() {
-        return this.props.lastState || {};
-    }
-    get reducer() {
-        return combinedReducer;
+
+        this.unsubscribe = this.store.subscribe(() => {
+            this.setState(this.store.getState());
+        });
+
+
+        /*this.store.subscribe(() => {
+            replicate(this.store.getState());
+        });*/
+
     }
     render() {
         let page = null;
-        if (Object.keys(this.state).length) {
+        if (this.state) {
             let { route, account, contacts, user } = this.state;
-            let actions = this.peerActions; 
+            let actions = this.peerActions;
             account = account["1"];
 
             if (route.indexOf(staticRoutes.ROUTE_REGISTER) != -1) {

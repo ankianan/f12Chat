@@ -43,19 +43,6 @@ class Spec extends Api {
 class Component extends Spec {
     constructor(props) {
         super(...arguments);
-        
-        this.state = this.initialState;
-
-        
-        //Creating flux store for the state        
-        if (this.state) {
-            this.store = Redux.createStore(this.reducer, this.state, Redux.applyMiddleware(logger, reduxThunk));
-            this.unsubscribe = this.store.subscribe(() => {
-                this.setState(this.store.getState());
-            });
-        } else {
-            this.store = null;
-        }
     }    
 }
 
