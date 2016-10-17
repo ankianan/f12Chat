@@ -1,12 +1,13 @@
-let { Virtual, Redux, page, localforage } = window.interfaces;
+let { Virtual, Redux, page } = window.interfaces;
 let { bindActionCreators, compose } = Redux;
 
-import config from "../config.js";
 
-//import 'setimmediate';
+import PeerConnection from "../Peer/PeerConnection.js";
 import reduxThunk from "redux-thunk";
 import logger from "../../jass/redux/middleware/logger.js";
-import { createTransform, persistStore, autoRehydrate } from 'redux-persist';
+import { autoRehydrate } from 'redux-persist';
+
+import * as storage from "./storage.js";
 
 //import { replicate } from "../storage.js";
 import combinedReducer from "./reducer.js";
@@ -22,37 +23,46 @@ import Connect from "../Peer/ConnectComponent.js";
 class Root extends Virtual.Component {
     constructor() {
         super(...arguments);
-        //Creating flux store for the state        
 
-        let enhancer = compose(autoRehydrate(), Redux.applyMiddleware(logger, reduxThunk));
+
+        //Creating flux store for the state        
+        let enhancer = compose(storage.storeEnhancer, Redux.applyMiddleware(logger, reduxThunk));
         this.store = Redux.createStore(combinedReducer, undefined, enhancer);
 
-        routesConfig(bindActionCreators(routeActions, this.store.dispatch));
+/*        //subscribe store
+        this.store.subscribe(() => {
+            this.setState(this.store.getState());
+        });
+*/
+        //Bind Actions
         this.peerActions = bindActionCreators(peerActions, this.store.dispatch);
-        localforage.config(config.storage);
 
-        let myTransform = createTransform(
-            (inboundState, key) => {
-                console.log(inboundState);
-                return inboundState;
-            },
-            (outboundState, key) => outboundState);
 
-        persistStore(this.store, { storage: localforage, serialize: (data) => data, deserialize: (data) => data, transforms: [myTransform] }, () => {
-            console.log('rehydration complete');
-            this.setState(this.store.getState());
-            page.redirect(document.location.pathname);
+        //Configuring Routes
+        let boundedRoutesAction = bindActionCreators(routeActions, this.store.dispatch)
+        routesConfig(boundedRoutesAction);
+
+        //Storage Configuration
+        storage.config({
+            store: this.store,
+            rehydrationCallback: () => {
+                console.log('rehydration complete');
+                //this.setState(this.store.getState());                
+                page.redirect(document.location.pathname);
+                this.initPeer();
+
+            }
         });
-
-        this.unsubscribe = this.store.subscribe(() => {
-            this.setState(this.store.getState());
-        });
-
-
-        /*this.store.subscribe(() => {
-            replicate(this.store.getState());
-        });*/
-
+    }
+    initPeer() {
+        let { onRecieveMessage } = this.peerActions;
+        let { detail, connContactId } = this.state.account .1;
+        if (detail) {
+            if (connContactId) {
+                return new PeerConnection({ id: detail, connId: connContactId, onRecieveMessage });
+            }
+            return new PeerConnection({ id: detail, onRecieveMessage });
+        }
     }
     render() {
         let page = null;
@@ -65,7 +75,7 @@ class Root extends Virtual.Component {
                 page = <Register idField={account.idField} onChangeName={actions.onChangeName} onRegister={actions.onRegister} onRecieveMessage={actions.onRecieveMessage} />;
             }
             if (route.indexOf(staticRoutes.ROUTE_CONTACTS) != -1) {
-                page = <Contacts contactIds={account.contacts} searchField={account.contactSearchField} id={account.detail} contacts={contacts} onChangeConnName={actions.onChangeConnName} onConnection={actions.onConnection}></Contacts>
+                page = <Contacts contactIds={account.contacts} searchField={account.contactSearchField} id={account.detail} contacts={contacts} onChangeConnName={actions.onChangeConnName} onConnection={actions.onConnection} ></Contacts>
             }
             if (route.indexOf(staticRoutes.ROUTE_CONNECT) != -1) {
                 let contact = contacts[account.connContactId];

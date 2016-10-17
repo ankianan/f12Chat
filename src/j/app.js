@@ -3,23 +3,118 @@
 (function () {
 	'use strict';
 
-	//Setting base of our application
-	var base = "//" + document.location.host + "";
-
-	//Storage configration
-	var storage = {
-	    //driver: localforage.WEBSQL, // Force WebSQL; same as using setDriver()
-	    name: 'naukriDB',
-	    version: 9,
-	    //size: 4980736, // Size of database, in bytes. WebSQL-only for now.
-	    storeName: 'naukriStore', // Should be alphanumeric, with underscores.
-	    description: 'Naukri jobseeker SPA'
+	var classCallCheck = function (instance, Constructor) {
+	  if (!(instance instanceof Constructor)) {
+	    throw new TypeError("Cannot call a class as a function");
+	  }
 	};
 
-	var config = {
-	    base: base,
-	    storage: storage
+	var _extends = Object.assign || function (target) {
+	  for (var i = 1; i < arguments.length; i++) {
+	    var source = arguments[i];
+
+	    for (var key in source) {
+	      if (Object.prototype.hasOwnProperty.call(source, key)) {
+	        target[key] = source[key];
+	      }
+	    }
+	  }
+
+	  return target;
 	};
+
+	var inherits = function (subClass, superClass) {
+	  if (typeof superClass !== "function" && superClass !== null) {
+	    throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
+	  }
+
+	  subClass.prototype = Object.create(superClass && superClass.prototype, {
+	    constructor: {
+	      value: subClass,
+	      enumerable: false,
+	      writable: true,
+	      configurable: true
+	    }
+	  });
+	  if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
+	};
+
+	var possibleConstructorReturn = function (self, call) {
+	  if (!self) {
+	    throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+	  }
+
+	  return call && (typeof call === "object" || typeof call === "function") ? call : self;
+	};
+
+	var instance = null;
+
+	var PeerConnection = function () {
+	    function PeerConnection() {
+	        var _ref = arguments.length <= 0 || arguments[0] === undefined ? { id: null, onRecieveMessage: null, connId: null } : arguments[0];
+
+	        var id = _ref.id;
+	        var onRecieveMessage = _ref.onRecieveMessage;
+	        var connId = _ref.connId;
+	        classCallCheck(this, PeerConnection);
+
+	        if (!instance) {
+	            instance = this;
+	            this.peer = null;
+	            this.connName = null;
+	            this.conn = null;
+	            this.connList = [];
+	        }
+
+	        if (id && onRecieveMessage) {
+	            instance.register(id, onRecieveMessage);
+	            if (connId) {
+	                instance.connect(connId);
+	            }
+	        }
+	        return instance;
+	    }
+
+	    PeerConnection.prototype.register = function register(id, onRecieveMessage) {
+	        var _this = this;
+
+	        this.peer = new window.Peer(id, {
+	            key: '45x1mf8qyx7833di'
+	        });
+	        this.peer.on('connection', function (conn) {
+	            conn.on('data', function (data) {
+	                onRecieveMessage(_this.connName, data);
+	            });
+	        });
+	    };
+
+	    PeerConnection.prototype.connect = function connect(connId) {
+	        var _this2 = this;
+
+	        this.connName = connId;
+	        var filterdConnList = this.connList.filter(function (_ref2) {
+	            var id = _ref2.id;
+
+	            if (id == _this2.connName) {
+	                return true;
+	            }
+	            return false;
+	        });
+	        if (filterdConnList.length) {
+	            this.conn = filterdConnList.pop().conn;
+	        } else {
+	            this.conn = this.peer.connect(this.connName);
+	            this.connList.push({ id: connId, conn: this.conn });
+	        }
+	    };
+
+	    PeerConnection.prototype.send = function send(message) {
+	        this.conn.send(message);
+	        return "....";
+	    };
+
+	    return PeerConnection;
+	}();
 
 	function createThunkMiddleware(extraArgument) {
 	  return function (_ref) {
@@ -61,7 +156,7 @@
 	    };
 	};
 
-	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+	var _typeof$1 = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
 	var genericSetImmediate = typeof setImmediate === 'undefined' ? global.setImmediate : setImmediate;
 	var nextTick = process && process.nextTick ? process.nextTick : genericSetImmediate;
@@ -75,7 +170,7 @@
 
 	function hasLocalStorage() {
 	  try {
-	    return (typeof window === 'undefined' ? 'undefined' : _typeof(window)) === 'object' && !!window.localStorage;
+	    return (typeof window === 'undefined' ? 'undefined' : _typeof$1(window)) === 'object' && !!window.localStorage;
 	  } catch (e) {
 	    return false;
 	  }
@@ -83,7 +178,7 @@
 
 	function hasSessionStorage() {
 	  try {
-	    return (typeof window === 'undefined' ? 'undefined' : _typeof(window)) === 'object' && typeof window.sessionStorage !== 'undefined';
+	    return (typeof window === 'undefined' ? 'undefined' : _typeof$1(window)) === 'object' && typeof window.sessionStorage !== 'undefined';
 	  } catch (e) {
 	    return false;
 	  }
@@ -277,20 +372,20 @@
 	    Ctor instanceof Ctor && funcToString.call(Ctor) == objectCtorString);
 	}
 
-	var _typeof$2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+	var _typeof$3 = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
 	function isStatePlainEnough(a) {
 	  // isPlainObject + duck type not immutable
 	  if (!a) return false;
-	  if ((typeof a === 'undefined' ? 'undefined' : _typeof$2(a)) !== 'object') return false;
+	  if ((typeof a === 'undefined' ? 'undefined' : _typeof$3(a)) !== 'object') return false;
 	  if (typeof a.mergeDeep === 'function') return false;
 	  if (!isPlainObject(a)) return false;
 	  return true;
 	}
 
-	var _typeof$1 = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+	var _typeof$2 = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
-	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+	var _extends$1 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 	function autoRehydrate() {
 	  var config = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
@@ -300,7 +395,7 @@
 	  return function (next) {
 	    return function (reducer, initialState, enhancer) {
 	      var store = next(liftReducer(reducer), initialState, enhancer);
-	      return _extends({}, store, {
+	      return _extends$1({}, store, {
 	        replaceReducer: function replaceReducer(reducer) {
 	          return store.replaceReducer(liftReducer(reducer));
 	        }
@@ -335,14 +430,14 @@
 	}
 
 	function defaultStateReconciler(state, inboundState, reducedState, log) {
-	  var newState = _extends({}, reducedState);
+	  var newState = _extends$1({}, reducedState);
 
 	  Object.keys(inboundState).forEach(function (key) {
 	    // if initialState does not have key, skip auto rehydration
 	    if (!state.hasOwnProperty(key)) return;
 
 	    // if initial state is an object but inbound state is null/undefined, skip
-	    if (_typeof$1(state[key]) === 'object' && !inboundState[key]) {
+	    if (_typeof$2(state[key]) === 'object' && !inboundState[key]) {
 	      if (log) console.log('redux-persist/autoRehydrate: sub state for key `%s` is falsy but initial state is an object, skipping autoRehydrate.', key);
 	      return;
 	    }
@@ -355,7 +450,7 @@
 	    }
 
 	    // otherwise take the inboundState
-	    if (isStatePlainEnough(inboundState[key]) && isStatePlainEnough(state[key])) newState[key] = _extends({}, state[key], inboundState[key]); // shallow merge
+	    if (isStatePlainEnough(inboundState[key]) && isStatePlainEnough(state[key])) newState[key] = _extends$1({}, state[key], inboundState[key]); // shallow merge
 	    else newState[key] = inboundState[key]; // hard set
 
 	    if (log) console.log('redux-persist/autoRehydrate: key `%s`, rehydrated to ', key, newState[key]);
@@ -2772,7 +2867,7 @@ var 	symbolProto$1 = Symbol$1 ? Symbol$1.prototype : undefined;
 	 * _.get(object, 'a.b.c', 'default');
 	 * // => 'default'
 	 */
-	function get(object, path, defaultValue) {
+	function get$1(object, path, defaultValue) {
 	  var result = object == null ? undefined : baseGet(object, path);
 	  return result === undefined ? defaultValue : result;
 	}
@@ -2865,7 +2960,7 @@ var 	PARTIAL_COMPARE_FLAG$5 = 2;
 	    return matchesStrictComparable(toKey(path), srcValue);
 	  }
 	  return function(object) {
-	    var objValue = get(object, path);
+	    var objValue = get$1(object, path);
 	    return (objValue === undefined && objValue === srcValue)
 	      ? hasIn(object, path)
 	      : baseIsEqual(srcValue, objValue, undefined, UNORDERED_COMPARE_FLAG$3 | PARTIAL_COMPARE_FLAG$5);
@@ -3173,7 +3268,7 @@ var 	PARTIAL_COMPARE_FLAG$5 = 2;
 	  };
 	}
 
-	var _extends$1 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+	var _extends$2 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 	function getStoredState(config, onComplete) {
 	  var storage = config.storage || createAsyncLocalStorage('local');
@@ -3184,7 +3279,7 @@ var 	PARTIAL_COMPARE_FLAG$5 = 2;
 	  var keyPrefix = config.keyPrefix !== undefined ? config.keyPrefix : KEY_PREFIX;
 
 	  // fallback getAllKeys to `keys` if present (LocalForage compatability)
-	  if (storage.keys && !storage.getAllKeys) storage = _extends$1({}, storage, { getAllKeys: storage.keys });
+	  if (storage.keys && !storage.getAllKeys) storage = _extends$2({}, storage, { getAllKeys: storage.keys });
 
 	  var restoredState = {};
 	  var completionCount = 0;
@@ -3420,7 +3515,7 @@ var 	PARTIAL_COMPARE_FLAG$5 = 2;
 	  return result;
 	}
 
-	var defineProperty = (function() {
+	var defineProperty$1 = (function() {
 	  try {
 	    var func = getNative(Object, 'defineProperty');
 	    func({}, '', {});
@@ -3438,8 +3533,8 @@ var 	PARTIAL_COMPARE_FLAG$5 = 2;
 	 * @param {*} value The value to assign.
 	 */
 	function baseAssignValue(object, key, value) {
-	  if (key == '__proto__' && defineProperty) {
-	    defineProperty(object, key, {
+	  if (key == '__proto__' && defineProperty$1) {
+	    defineProperty$1(object, key, {
 	      'configurable': true,
 	      'enumerable': true,
 	      'value': value,
@@ -3664,8 +3759,8 @@ var 	PARTIAL_COMPARE_FLAG$5 = 2;
 	 * @param {Function} string The `toString` result.
 	 * @returns {Function} Returns `func`.
 	 */
-	var baseSetToString = !defineProperty ? identity : function(func, string) {
-	  return defineProperty(func, 'toString', {
+	var baseSetToString = !defineProperty$1 ? identity : function(func, string) {
+	  return defineProperty$1(func, 'toString', {
 	    'configurable': true,
 	    'enumerable': false,
 	    'value': constant(string),
@@ -3912,7 +4007,7 @@ var 	PARTIAL_COMPARE_FLAG$5 = 2;
 	  return basePick(object, baseDifference(getAllKeysIn(object), props));
 	});
 
-	var _extends$2 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+	var _extends$3 = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 	// try to source setImmediate as follows: setImmediate (global) -> global.setImmediate -> setTimeout(fn, 0)
 	var genericSetImmediate$1 = typeof setImmediate === 'undefined' ? global.setImmediate || function (fn) {
@@ -3952,7 +4047,7 @@ var 	PARTIAL_COMPARE_FLAG$5 = 2;
 	    onComplete && onComplete(err, restoredState);
 	  }
 
-	  return _extends$2({}, persistor, {
+	  return _extends$3({}, persistor, {
 	    purge: function purge(keys) {
 	      purgeKeys = keys || '*';
 	      persistor.purge(keys);
@@ -3978,6 +4073,46 @@ var 	PARTIAL_COMPARE_FLAG$5 = 2;
 	  asyncLocalStorage: createAsyncLocalStorage('local', { deprecated: storageDeprecatedMessage('Local') }),
 	  asyncSessionStorage: createAsyncLocalStorage('session', { deprecated: storageDeprecatedMessage('Session') })
 	};
+
+	//Setting base of our application
+	var base = "//" + document.location.host + "";
+
+	//Storage configration
+	var storage = {
+	    //driver: localforage.WEBSQL, // Force WebSQL; same as using setDriver()
+	    name: 'naukriDB',
+	    version: 9,
+	    //size: 4980736, // Size of database, in bytes. WebSQL-only for now.
+	    storeName: 'naukriStore', // Should be alphanumeric, with underscores.
+	    description: 'Naukri jobseeker SPA'
+	};
+
+	var config = {
+	    base: base,
+	    storage: storage
+	};
+
+	var localforage = window.interfaces.localforage;
+
+	var storageConfig = (function () {
+	    var obj = arguments.length <= 0 || arguments[0] === undefined ? { store: null, rehydrationCallback: null } : arguments[0];
+
+	    //Configure storage
+	    localforage.config(config.storage);
+
+	    var myTransform = createTransform(function (inboundState, key) {
+	        console.log(inboundState);
+	        return inboundState;
+	    }, function (outboundState, key) {
+	        return outboundState;
+	    });
+
+	    persistStore(obj.store, { storage: localforage, serialize: function (data) {
+	            return data;
+	        }, deserialize: function (data) {
+	            return data;
+	        }, transforms: [myTransform] }, obj.rehydrationCallback);
+	})
 
 	var constants = createCommonjsModule(function (module, exports) {
 	'use strict';
@@ -4019,50 +4154,6 @@ var 	PARTIAL_COMPARE_FLAG$5 = 2;
 	var PEER_SEND_MESSAGE = "PEER_SEND_MESSAGE";
 	var PEER_RECIEVE_MESSAGE = "PEER_RECIEVE_MESSAGE";
 
-	var classCallCheck = function (instance, Constructor) {
-	  if (!(instance instanceof Constructor)) {
-	    throw new TypeError("Cannot call a class as a function");
-	  }
-	};
-
-	var _extends$3 = Object.assign || function (target) {
-	  for (var i = 1; i < arguments.length; i++) {
-	    var source = arguments[i];
-
-	    for (var key in source) {
-	      if (Object.prototype.hasOwnProperty.call(source, key)) {
-	        target[key] = source[key];
-	      }
-	    }
-	  }
-
-	  return target;
-	};
-
-	var inherits = function (subClass, superClass) {
-	  if (typeof superClass !== "function" && superClass !== null) {
-	    throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
-	  }
-
-	  subClass.prototype = Object.create(superClass && superClass.prototype, {
-	    constructor: {
-	      value: subClass,
-	      enumerable: false,
-	      writable: true,
-	      configurable: true
-	    }
-	  });
-	  if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
-	};
-
-	var possibleConstructorReturn = function (self, call) {
-	  if (!self) {
-	    throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
-	  }
-
-	  return call && (typeof call === "object" || typeof call === "function") ? call : self;
-	};
-
 	/*{
 	    "9911344354": {
 	        "messageField": "",
@@ -4097,14 +4188,14 @@ var 	PARTIAL_COMPARE_FLAG$5 = 2;
 	    switch (action.type) {
 	        case REHYDRATE$1:
 	            var incoming = action.payload.contacts;
-	            if (incoming) return _extends$3({}, state, incoming);
+	            if (incoming) return _extends({}, state, incoming);
 	            return state;
 
 	        case PEER_CONNECTED:
 	            if (!state[action.id]) {
 	                var _babelHelpers$extends;
 
-	                return _extends$3({}, state, (_babelHelpers$extends = {}, _babelHelpers$extends[action.id] = _extends$3({}, state[action.id], {
+	                return _extends({}, state, (_babelHelpers$extends = {}, _babelHelpers$extends[action.id] = _extends({}, state[action.id], {
 	                    "messageField": "",
 	                    "detail": [action.id],
 	                    "logs": []
@@ -4112,10 +4203,10 @@ var 	PARTIAL_COMPARE_FLAG$5 = 2;
 	            }
 	            return state;
 	        case PEER_CHANGE_MESSAGE:
-	            return _extends$3({}, state, (_babelHelpers$extends2 = {}, _babelHelpers$extends2[action.id] = _extends$3({}, state[action.id], { "messageField": action.message }), _babelHelpers$extends2));
+	            return _extends({}, state, (_babelHelpers$extends2 = {}, _babelHelpers$extends2[action.id] = _extends({}, state[action.id], { "messageField": action.message }), _babelHelpers$extends2));
 	        case PEER_RECIEVE_MESSAGE:
 	        case PEER_SEND_MESSAGE:
-	            return _extends$3({}, state, (_babelHelpers$extends3 = {}, _babelHelpers$extends3[action.id] = _extends$3({}, state[action.id], {
+	            return _extends({}, state, (_babelHelpers$extends3 = {}, _babelHelpers$extends3[action.id] = _extends({}, state[action.id], {
 	                "logs": state[action.id].logs.concat({
 	                    message: action.message,
 	                    method: action.method,
@@ -4151,7 +4242,7 @@ var 	PARTIAL_COMPARE_FLAG$5 = 2;
 	    switch (action.type) {
 	        case REHYDRATE$1:
 	            var incoming = action.payload.user;
-	            if (incoming) return _extends$3({}, state, incoming);
+	            if (incoming) return _extends({}, state, incoming);
 	            return state;
 
 	        case PEER_REGISTER:
@@ -4159,7 +4250,7 @@ var 	PARTIAL_COMPARE_FLAG$5 = 2;
 	            if (!state[action.id]) {
 	                var _babelHelpers$extends;
 
-	                return _extends$3({}, state, (_babelHelpers$extends = {}, _babelHelpers$extends[action.id] = {
+	                return _extends({}, state, (_babelHelpers$extends = {}, _babelHelpers$extends[action.id] = {
 	                    id: action.id,
 	                    name: action.name
 	                }, _babelHelpers$extends));
@@ -4198,23 +4289,23 @@ var 	PARTIAL_COMPARE_FLAG$5 = 2;
 	    switch (action.type) {
 	        case REHYDRATE$1:
 	            var incoming = action.payload.account;
-	            if (incoming) return _extends$3({}, state, incoming);
+	            if (incoming) return _extends({}, state, incoming);
 	            return state;
 	        case PEER_REGISTER:
-	            return _extends$3({}, state, {
-	                "1": _extends$3({}, state["1"], {
+	            return _extends({}, state, {
+	                "1": _extends({}, state["1"], {
 	                    "detail": action.id
 	                })
 	            });
 	        case PEER_CHANGE_NAME:
-	            return _extends$3({}, state, {
-	                "1": _extends$3({}, state["1"], {
+	            return _extends({}, state, {
+	                "1": _extends({}, state["1"], {
 	                    "idField": action.name
 	                })
 	            });
 	        case PEER_CHANGE_CONN_NAME:
-	            return _extends$3({}, state, {
-	                "1": _extends$3({}, state["1"], {
+	            return _extends({}, state, {
+	                "1": _extends({}, state["1"], {
 	                    "contactSearchField": action.name
 	                })
 	            });
@@ -4223,8 +4314,8 @@ var 	PARTIAL_COMPARE_FLAG$5 = 2;
 	                return contactId != action.id;
 	            });
 	            contacts.unshift(action.id);
-	            return _extends$3({}, state, {
-	                "1": _extends$3({}, state["1"], {
+	            return _extends({}, state, {
+	                "1": _extends({}, state["1"], {
 	                    "connContactId": action.id,
 	                    contacts: contacts
 	                })
@@ -4354,63 +4445,6 @@ var 	PARTIAL_COMPARE_FLAG$5 = 2;
 	        };
 	    }
 	};
-
-	var instance = null;
-
-	var PeerConnection = function () {
-	    function PeerConnection() {
-	        classCallCheck(this, PeerConnection);
-
-	        if (!instance) {
-	            instance = this;
-	            this.peer = null;
-	            this.connName = null;
-	            this.conn = null;
-	            this.connList = [];
-	        }
-	        return instance;
-	    }
-
-	    PeerConnection.prototype.register = function register(id, onRecieveMessage) {
-	        var _this = this;
-
-	        this.peer = new window.Peer(id, {
-	            key: '45x1mf8qyx7833di'
-	        });
-	        this.peer.on('connection', function (conn) {
-	            conn.on('data', function (data) {
-	                onRecieveMessage(_this.connName, data);
-	            });
-	        });
-	    };
-
-	    PeerConnection.prototype.connect = function connect(connId) {
-	        var _this2 = this;
-
-	        this.connName = connId;
-	        var filterdConnList = this.connList.filter(function (_ref) {
-	            var id = _ref.id;
-
-	            if (id == _this2.connName) {
-	                return true;
-	            }
-	            return false;
-	        });
-	        if (filterdConnList.length) {
-	            this.conn = filterdConnList.pop().conn;
-	        } else {
-	            this.conn = this.peer.connect(this.connName);
-	            this.connList.push({ id: connId, conn: this.conn });
-	        }
-	    };
-
-	    PeerConnection.prototype.send = function send(message) {
-	        this.conn.send(message);
-	        return "....";
-	    };
-
-	    return PeerConnection;
-	}();
 
 	var _window$interfaces$2 = window.interfaces;
 	var Virtual$2 = _window$interfaces$2.Virtual;
@@ -4643,7 +4677,6 @@ var 	PARTIAL_COMPARE_FLAG$5 = 2;
 	var Virtual$1 = _window$interfaces$1.Virtual;
 	var Redux = _window$interfaces$1.Redux;
 	var page = _window$interfaces$1.page;
-	var localforage = _window$interfaces$1.localforage;
 	var bindActionCreators = Redux.bindActionCreators;
 	var compose = Redux.compose;
 
@@ -4661,46 +4694,53 @@ var 	PARTIAL_COMPARE_FLAG$5 = 2;
 	        var enhancer = compose(autoRehydrate(), Redux.applyMiddleware(logger, thunk));
 	        _this.store = Redux.createStore(reducer, undefined, enhancer);
 
-	        routesConfig(bindActionCreators(actions, _this.store.dispatch));
+	        //subscribe store
+	        _this.store.subscribe(function () {
+	            _this.setState(_this.store.getState());
+	        });
+
+	        //Bind Actions
 	        _this.peerActions = bindActionCreators(actions$1, _this.store.dispatch);
-	        localforage.config(config.storage);
 
-	        var myTransform = createTransform(function (inboundState, key) {
-	            console.log(inboundState);
-	            return inboundState;
-	        }, function (outboundState, key) {
-	            return outboundState;
+	        //Configuring Routes
+	        var boundedRoutesAction = bindActionCreators(actions, _this.store.dispatch);
+	        routesConfig(boundedRoutesAction);
+
+	        //Storage Configuration
+	        storageConfig({
+	            store: _this.store,
+	            rehydrationCallback: function () {
+	                console.log('rehydration complete');
+	                //this.setState(this.store.getState());               
+	                page.redirect(document.location.pathname);
+	                _this.initPeer();
+	            }
 	        });
-
-	        persistStore(_this.store, { storage: localforage, serialize: function (data) {
-	                return data;
-	            }, deserialize: function (data) {
-	                return data;
-	            }, transforms: [myTransform] }, function () {
-	            console.log('rehydration complete');
-	            _this.setState(_this.store.getState());
-	            page.redirect(document.location.pathname);
-	        });
-
-	        _this.unsubscribe = _this.store.subscribe(function () {
-	            _this.setState(_this.store.getState());
-	        });
-
-	        /*this.store.subscribe(() => {
-	            replicate(this.store.getState());
-	        });*/
-
 	        return _this;
 	    }
+
+	    Root.prototype.initPeer = function initPeer() {
+	        var onRecieveMessage = this.peerActions.onRecieveMessage;
+	        var _state = this.state;
+	        var detail = _state.detail;
+	        var connContactId = _state.connContactId;
+
+	        if (detail) {
+	            if (connContactId) {
+	                return new PeerConnection({ id: detail, connId: connContactId, onRecieveMessage: onRecieveMessage });
+	            }
+	            return new PeerConnection({ id: detail, onRecieveMessage: onRecieveMessage });
+	        }
+	    };
 
 	    Root.prototype.render = function render() {
 	        var page = null;
 	        if (this.state) {
-	            var _state = this.state;
-	            var route = _state.route;
-	            var account = _state.account;
-	            var contacts = _state.contacts;
-	            var user = _state.user;
+	            var _state2 = this.state;
+	            var route = _state2.route;
+	            var account = _state2.account;
+	            var contacts = _state2.contacts;
+	            var user = _state2.user;
 
 	            var actions = this.peerActions;
 	            account = account["1"];

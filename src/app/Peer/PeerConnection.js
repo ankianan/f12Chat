@@ -1,13 +1,20 @@
 let instance = null;
 
 class PeerConnection {
-    constructor() {
+    constructor({ id, onRecieveMessage, connId } = { id: null, onRecieveMessage: null, connId: null }) {
         if (!instance) {
             instance = this;
             this.peer = null;
             this.connName = null;
             this.conn = null;
             this.connList = [];
+        }
+
+        if (id && onRecieveMessage) {
+            instance.register(id, onRecieveMessage);
+            if (connId) {
+                instance.connect(connId);
+            }
         }
         return instance;
     }
@@ -39,7 +46,7 @@ class PeerConnection {
 
     }
     send(message) {
-        this.conn.send(message);        
+        this.conn.send(message);
         return "....";
     }
 }
