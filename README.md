@@ -4,6 +4,8 @@ Now chat p2p from console in developer tool.
 
 ![alt tag](https://raw.githubusercontent.com/ankit90anand/f12Chat/master/img/demo.png)
 
+### Demo
+http://ankit90anand.github.io/f12Chat/
 
 ### Color scheme
 - Green shows messages sent by you.     
