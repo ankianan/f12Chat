@@ -40,4 +40,4 @@ function register(myId) {
 var connect = send = function(message) {
     console.log("wait a second");
 }
-loadJS("http://cdn.peerjs.com/0.3/peer.js");
+loadJS("./peer.js");
