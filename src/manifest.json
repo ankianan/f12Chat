@@ -1,0 +1,10 @@
+{
+  "name": "f12 chat",
+  "start_url": "localhost:5000",
+  "description": "A simple demo of p2p chat",
+  "icons": [{
+    "src": "https://helloblockstack.com/icon-192x192.png",
+    "sizes": "192x192",
+    "type": "image/png"
+  }]
+}
