@@ -43,7 +43,9 @@ function register(myId) {
 }
 
 
-var connect = send = function(message) {
+var connect,send;  
+
+connect = send = function(message) {
   console.log("wait a second");
 }
 

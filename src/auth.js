@@ -9,14 +9,11 @@ export const isUserSignedIn = () => {
   return false;
 }
 
-const handleSignIn = function(event) {
+export const handleSignIn = function(event) {
   event.preventDefault();
   const origin = window.location.origin
   redirectToSignIn(origin, origin + '/manifest.json', ['publish_data', 'store_write'])
 };
 
-document.getElementById('signin-button').addEventListener('click', handleSignIn)
-document.getElementById('signout-button').addEventListener('click', function(event) {
-  event.preventDefault()
-  blockstack.signUserOut(window.location.href)
-})
+
+

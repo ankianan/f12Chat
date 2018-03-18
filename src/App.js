@@ -13,7 +13,9 @@ class App extends React.PureComponent {
   componentDidMount() {
     if (auth.isUserSignedIn()) {
       var person = new blockstack.Person(blockstack.loadUserData())
-      this.setState(person.profile())
+      this.setState({userProfile:person.profile()})
+    }else{
+      document.getElementById('signin-button').addEventListener('click', auth.handleSignIn);
     }
   }
   render() {

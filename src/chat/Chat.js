@@ -13,6 +13,10 @@ class Chat extends React.PureComponent {
     }
   }
   componentDidMount() {
+    document.getElementById('signout-button').addEventListener('click', function(event) {
+      event.preventDefault()
+      blockstack.signUserOut(window.location.href)
+    })
   	
   }
   setSelectedPeerProfile(profile) {

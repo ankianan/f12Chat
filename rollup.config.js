@@ -23,7 +23,7 @@ export default { // can be an array (for multiple inputs)
   output: { // required (can be an array, for multiple outputs)
     // core output options
     format: "iife", // required
-    file: "bundle.js",
+    file: "public/bundle.js",
     dir: "public",
     name: "f12Chat",
 
