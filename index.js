@@ -14,8 +14,10 @@ function loadJS(file) {
 }
 
 function register(myId) {
-    var peer = new Peer(myId, {
-        key: 'bixfuxcgpjw3tyb9'
+    var peer = new Peer();
+
+    peer.on('open', function(id) {
+      console.log('My peer ID is: ' + id);
     });
 
     peer.on('connection', function(conn) {
