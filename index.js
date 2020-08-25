@@ -14,8 +14,10 @@ function loadJS(file) {
 }
 
 function register(myId) {
-    var peer = new Peer(myId, {
-        key: 'bixfuxcgpjw3tyb9'
+    var peer = new Peer();
+
+    peer.on('open', function(id) {
+      console.log('My peer ID is: ' + id);
     });
 
     peer.on('connection', function(conn) {
@@ -40,4 +42,4 @@ function register(myId) {
 var connect = send = function(message) {
     console.log("wait a second");
 }
-loadJS("https://cdn.rawgit.com/ankit90anand/f12Chat/master/peer.js");
+loadJS("https://unpkg.com/peerjs@1.3.1/dist/peerjs.min.js");
