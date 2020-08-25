@@ -40,4 +40,4 @@ function register(myId) {
 var connect = send = function(message) {
     console.log("wait a second");
 }
-loadJS("https://cdn.rawgit.com/ankit90anand/f12Chat/master/peer.js");
+loadJS("https://unpkg.com/peerjs@1.3.1/dist/peerjs.min.js");
